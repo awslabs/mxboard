@@ -255,7 +255,8 @@ with SummaryWriter(logdir='./logs') as sw:
 1. https://github.com/TeamHG-Memex/tensorboard_logger
 2. https://github.com/lanpa/tensorboard-pytorch
 3. https://github.com/dmlc/tensorboard
-
+4. https://github.com/tensorflow/tensorflow
+5. https://github.com/tensorflow/tensorboard
 
 ## License
 
