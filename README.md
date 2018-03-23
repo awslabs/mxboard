@@ -98,6 +98,7 @@ from mxboard import SummaryWriter
 
 with SummaryWriter(logdir='./logs') as sw:
     for i in range(10):
+        # create a normal distribution with fixed mean and decreasing std
         data = mx.nd.normal(loc=0, scale=10.0/(i+1), shape=(10, 3, 8, 8))
         sw.add_histogram(tag='norml_dist', values=data, bins=200, global_step=i)
 ```
@@ -118,13 +119,19 @@ import numpy as np
 from mxboard import SummaryWriter
 from scipy import misc
 
+# get a racoon face image from scipy
+# and convert its layout from HWC to CHW
 face = misc.face().transpose((2, 0, 1))
+# add a batch axis in the beginning
 face = face.reshape((1,) + face.shape)
+# replicate the face by 15 times
 faces = [face] * 15
+# concatenate the faces along the batch axis
 faces = np.concatenate(faces, axis=0)
 
 img = mx.nd.array(faces, dtype=faces.dtype)
 with SummaryWriter(logdir='./logs') as sw:
+    # write batched faces to the event file
     sw.add_image(tag='faces', image=img)
 ```
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_image_faces.png)
@@ -149,7 +156,7 @@ def transformer(data, label):
     data = data.reshape((-1,)).astype(np.float32)/255
     return data, label
 
-
+# training dataset containing MNIST images and labels
 train_data = gluon.data.DataLoader(
     gluon.data.vision.MNIST('./data', train=True, transform=transformer),
     batch_size=batch_size, shuffle=True, last_batch='discard')
@@ -161,12 +168,13 @@ images = None
 
 for i, (data, label) in enumerate(train_data):
     if i >= 20:
+        # only fetch the first 20 batches of images
         break
-    if initialized:
+    if initialized:  # after the first batch, concatenate the current batch with the existing one
         embedding = mx.nd.concat(*(embedding, data), dim=0)
         labels = mx.nd.concat(*(labels, label), dim=0)
         images = mx.nd.concat(*(images, data.reshape(batch_size, 1, 28, 28)), dim=0)
-    else:
+    else:  # first batch of images, directly assign
         embedding = data
         labels = label
         images = data.reshape(batch_size, 1, 28, 28)
@@ -241,6 +249,13 @@ with SummaryWriter(logdir='./logs') as sw:
     sw.add_pr_curve(tag='pseudo_pr_curve', predictions=predictions, labels=labels, num_thresholds=120)
 ```
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_pr_curve_uniform.png)
+
+
+## References
+1. https://github.com/TeamHG-Memex/tensorboard_logger
+2. https://github.com/lanpa/tensorboard-pytorch
+3. https://github.com/dmlc/tensorboard
+
 
 ## License
 
