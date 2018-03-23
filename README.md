@@ -6,6 +6,18 @@ This project (MXBoard) provides Python APIs logging
 [MXNet](http://mxnet.incubator.apache.org/) data for visualization in
 [TensorBoard](https://www.tensorflow.org/programmers_guide/summaries_and_tensorboard). 
 
+### How to install MXBoard from PyPI
+```bash
+pip install mxboard
+```
+
+### How to build MXBoard from source and install locally
+```bash
+git clone https://github.com/awslabs/mxnet-tensorboard.git
+cd mxnet-tensorboard/python
+python setup.py install
+```
+
 ### How to install TensorBoard
 To launch TensorBoard for visualization, make sure you have the
 [official release of TensorBoard](https://pypi.python.org/pypi/tensorboard) installed.
@@ -32,7 +44,7 @@ Please find the tutorials on
 [TensorFlow website](https://www.tensorflow.org/programmers_guide/summaries_and_tensorboard)
 for details.
 
-### What are other required packages for using MXBoard
+### What other packages are required for using MXBoard
 Please make sure the following Python packages have been installed before using
 the logging APIs:
 - [MXNet](https://pypi.python.org/pypi/mxnet)
@@ -51,7 +63,7 @@ We currently support the following data types that you can find on the TensorBoa
 - TEXT
 - PR CURVES
 
-
+### What are logging APIs
 MXBoard provides the logging APIs through the `SummaryWriter` class.
 
 ```python
