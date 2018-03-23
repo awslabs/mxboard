@@ -2,10 +2,9 @@
 
 ## Overview
 
-This project (MXBoard) provides Python APIs enabling visualizing MXNet data in
+This project (MXBoard) provides Python APIs logging
+[MXNet](http://mxnet.incubator.apache.org/) data for visualization in
 [TensorBoard](https://www.tensorflow.org/programmers_guide/summaries_and_tensorboard). 
-Please note that this library only provides the APIs for data logging. For visualization,
-users still need to install TensorBoard separately.
 
 ### How to install TensorBoard
 To launch TensorBoard for visualization, make sure you have the
@@ -14,7 +13,7 @@ You can type `pip install tensorflow && pip install tensorboard`
 on you machine to install TensorBoard.
 
 ### How to launch TensorBoard
-After you installed the TensorBoar Python package, type the following command in the terminal
+After you installed the TensorBoard Python package, type the following command in the terminal
 to launch TensorBoard:
 ```
 tensorborad --logdir=/path/to/your/log/dir --host=your_host_ip --port=your_port_number
@@ -46,8 +45,8 @@ the logging APIs:
 We currently support the following data types that you can find on the TensorBoard GUI:
 - SCALARS
 - IMAGES
-- HISTOGRAMS
-- PROJECTOR ([EMBEDDINGS VISUALIZATION](https://www.tensorflow.org/programmers_guide/embedding))
+- [HISTOGRAMS](https://www.tensorflow.org/programmers_guide/tensorboard_histograms)
+- [PROJECTOR/EMBENDDING](https://www.tensorflow.org/programmers_guide/embedding)
 - AUDIO
 - TEXT
 - PR CURVES
@@ -71,7 +70,7 @@ MXBoard provides the logging APIs through the `SummaryWriter` class.
 ```
 
 ## Examples
-Let's take a look at several simple examples demonstrating how to use the MXNet logging APIs.
+Let's take a look at several simple examples demonstrating the use MXBoard logging APIs.
 
 ### Scalar
 Scalar values are often plotted in terms of curves, such as training accuracy as time evolves. Here
