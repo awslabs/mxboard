@@ -17,6 +17,7 @@
 
 """Writer for writing events to the event file."""
 
+from __future__ import absolute_import
 import struct
 from ._crc32c import crc32c
 

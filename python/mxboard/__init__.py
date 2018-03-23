@@ -17,4 +17,5 @@
 
 """Summary module for logging MXNet data for visualization in TensorBoard"""
 
+from __future__ import absolute_import
 from .writer import SummaryWriter

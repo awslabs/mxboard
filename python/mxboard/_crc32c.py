@@ -17,6 +17,7 @@
 
 """Encoding serialized protobuf strings conforming tfrecord format. This file is copied from
 https://github.com/TeamHG-Memex/tensorboard_logger/blob/master/tensorboard_logger/crc32c.py"""
+from __future__ import absolute_import
 import array
 
 # CRC table copied from table0_ in

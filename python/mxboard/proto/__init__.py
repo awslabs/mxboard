@@ -16,3 +16,4 @@
 # under the License.
 
 """Protobuf definitions for the logging data"""
+from __future__ import absolute_import
