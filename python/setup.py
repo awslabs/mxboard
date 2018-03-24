@@ -29,14 +29,16 @@ if "--inplace" in sys.argv:
     kwargs = {}
 else:
     from setuptools import setup
-    kwargs = {'install_requires': ['mxnet', 'numpy', 'protobuf>=3.0.0', 'Pillow', 'six'], 'zip_safe': False}
+    kwargs = {'install_requires': ['mxnet', 'numpy<=1.13.3,>=1.8.2', 'protobuf>=3.0.0', 'Pillow', 'six'],
+              'zip_safe': False}
 
 
 def compile_summary_protobuf():
     proto_path = 'mxboard/proto'
     proto_files = os.path.join(proto_path, '*.proto')
     cmd = 'protoc ' + proto_files + ' --python_out=.'
-    return os.system(cmd)
+    print('compiling protobuf files in {}'.format(proto_path))
+    return os.system('set -ex &&' + cmd)
 
 
 if compile_summary_protobuf() != 0:
@@ -49,7 +51,7 @@ setup(
     name='mxboard',
     version='0.1.0',
     description='A logger for MXNet enabling data visualization in TensorBoard',
-    author='AWS',
+    author='Amazon Web Services',
     url='https://github.com/awslabs/tensorboard-mxnet',
     packages=find_packages(),
     include_package_data=True,

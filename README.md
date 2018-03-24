@@ -1,8 +1,8 @@
-# MXBoard: Logging MXNet Data for Visualization in TensorBoard
+# Logging MXNet Data for Visualization in TensorBoard
 
 ## Overview
 
-This project (MXBoard) provides Python APIs logging
+MXNet TensorBoard (MXBoard) provides a set of Python APIs for logging
 [MXNet](http://mxnet.incubator.apache.org/) data for visualization in
 [TensorBoard](https://www.tensorflow.org/programmers_guide/summaries_and_tensorboard). 
 
@@ -82,7 +82,7 @@ MXBoard provides the logging APIs through the `SummaryWriter` class.
 ```
 
 ## Examples
-Let's take a look at several simple examples demonstrating the use MXBoard logging APIs.
+Let's take a look at several simple examples demonstrating the use of MXBoard logging APIs.
 
 ### Scalar
 Scalar values are often plotted in terms of curves, such as training accuracy as time evolves. Here
