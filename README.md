@@ -2,9 +2,22 @@
 
 ## Overview
 
-MXNet TensorBoard (MXBoard) provides a set of Python APIs for logging
+MXNet TensorBoard (MXBoard) provides a set of Python APIs logging
 [MXNet](http://mxnet.incubator.apache.org/) data for visualization in
 [TensorBoard](https://www.tensorflow.org/programmers_guide/summaries_and_tensorboard). 
+The idea of this project comes from the discussion with Zihao Zheng, the author of
+[dmlc/tensorboard](https://github.com/dmlc/tensorboard),
+on delivering a visualization solution for MXNet users.
+We aim at providing the logging APIs that could process MXNet data efficiently
+and supporting most of the data types for visualization in TensorBoard.
+We adapted the low-level logging components, `FileWriter`, `EventsWriter`, `RecordWriter`,
+and `_EventLoggerThread`, from their Python and C++
+implementations in [TensorFlow](https://github.com/tensorflow/tensorflow),
+and user-level logging APIs defined in `SummaryWriter` from
+[tensorboard-pytorch](https://github.com/lanpa/tensorboard-pytorch).
+The encoding algorithm for writing protobuf objects into event files
+is directly borrowed from
+[TeamHG-Memex/tensorboard_logger)](https://github.com/TeamHG-Memex/tensorboard_logger).
 
 ### How to install MXBoard from PyPI
 ```bash
