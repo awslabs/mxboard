@@ -19,6 +19,11 @@ import shutil
 from mxboard import SummaryWriter
 from mxboard.utils import _make_metadata_tsv, make_image_grid, _make_sprite_image
 from mxboard.utils import _add_embedding_config, _save_embedding_tsv
+from mxboard.summary import _get_nodes_from_symbol, _sym2pb
+from mxboard.proto.node_def_pb2 import NodeDef
+from mxboard.proto.attr_value_pb2 import AttrValue
+from mxboard.proto.graph_pb2 import GraphDef
+from mxboard.proto.versions_pb2 import VersionDef
 from mxnet.test_utils import *
 from common import with_seed, setup_module
 
@@ -344,6 +349,36 @@ def test_add_pr_curve():
     num_threshodls = 100
     with SummaryWriter(_LOGDIR) as sw:
         sw.add_pr_curve(tag='test_add_pr_curve', labels=labels, predictions=predictions, num_thresholds=num_threshodls)
+    check_event_file_and_remove_logdir()
+
+
+def test_add_graph():
+    data = mx.sym.Variable('data')
+    conv = mx.sym.Convolution(data, kernel=(2, 2), num_filter=2)
+    nodes = _get_nodes_from_symbol(conv)
+    expected_nodes = [NodeDef(name='data', op='null'),
+                      NodeDef(name='convolution0/convolution0_weight', op='null',
+                              attr={'param': AttrValue(
+                                  s='{ kernel :  (2, 2) ,  num_filter :  2 }'.encode(encoding='utf-8'))}),
+                      NodeDef(name='convolution0/convolution0_bias', op='null',
+                              attr={'param': AttrValue(
+                                  s='{ kernel :  (2, 2) ,  num_filter :  2 }'.encode(encoding='utf-8'))}),
+                      NodeDef(name='convolution0/convolution0', op='Convolution',
+                              input=['data', 'convolution0/convolution0_weight', 'convolution0/convolution0_bias'],
+                              attr={'param': AttrValue(
+                                  s='{ kernel :  (2, 2) ,  num_filter :  2 }'.encode(encoding='utf-8'))})]
+    # check _get_nodes_from_symbol
+    for expected_node, node in zip(expected_nodes, nodes):
+        assert expected_node == node
+
+    # check _sym2pb
+    expected_graph = GraphDef(node=expected_nodes, versions=VersionDef(producer=100))
+    graph = _sym2pb(conv)
+    assert expected_graph == graph
+
+    # check add_graph
+    with SummaryWriter(logdir=_LOGDIR) as sw:
+        sw.add_graph(conv)
     check_event_file_and_remove_logdir()
 
 

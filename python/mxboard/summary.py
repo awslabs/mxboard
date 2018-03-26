@@ -376,6 +376,14 @@ def _get_nodes_from_symbol(sym):
         if 'null' != node['op']:  # node is an operator
             scope_names.append(node['name'])
 
+    # In the following, we group data with operators they belong to
+    # by attaching them with operator names as scope names.
+    # The parameters with the operator name as the prefix will be
+    # assigned with the scope name of that operator. For example,
+    # a convolution op has name 'conv', while its weight and bias
+    # have name 'conv_weight' and 'conv_bias'. In the end, the operator
+    # has scope name 'conv' prepended to its name, i.e. 'conv/conv'.
+    # The parameters are named 'conv/conv_weight' and 'conv/conv_bias'.
     node_defs = []
     for i, node in enumerate(nodes):
         node_name = node['name']
@@ -391,7 +399,7 @@ def _get_nodes_from_symbol(sym):
                     inputs.append(_scoped_name(input_node_name, input_node_name))
                 elif input_node_name.startswith(node_name + '_'):
                     inputs.append(_scoped_name(node_name, input_node_name))
-                else:
+                else:  # the data node has no scope name, e.g. 'data' as the input node
                     inputs.append(input_node_name)
             kwargs['input'] = inputs
             kwargs['name'] = _scoped_name(node_name, node_name)
@@ -407,6 +415,7 @@ def _get_nodes_from_symbol(sym):
                 kwargs['name'] = _scoped_name(scope_name, node_name)
 
         if 'attrs' in node:
+            # TensorBoard would escape single quotation mark, replace it with space
             attr = str(node['attrs']).replace("'", ' ')
             attr = {'param': AttrValue(s=attr.encode(encoding='utf-8'))}
             kwargs['attr'] = attr
@@ -415,7 +424,6 @@ def _get_nodes_from_symbol(sym):
     return node_defs
 
 
-def _get_graph_proto(sym):
-    node_defs = _get_nodes_from_symbol(sym)
-    return GraphDef(node=node_defs, versions=VersionDef(producer=100))
-
+def _sym2pb(sym):
+    """Converts an MXNet symbol to its graph protobuf definition."""
+    return GraphDef(node=_get_nodes_from_symbol(sym), versions=VersionDef(producer=100))
