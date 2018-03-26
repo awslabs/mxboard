@@ -29,7 +29,7 @@ from .proto import event_pb2
 from .proto import summary_pb2
 from .event_file_writer import EventFileWriter
 from .summary import scalar_summary, histogram_summary, image_summary, audio_summary
-from .summary import text_summary, pr_curve_summary
+from .summary import text_summary, pr_curve_summary, _get_graph_proto
 from .utils import _save_embedding_tsv, _make_sprite_image, _make_metadata_tsv
 from .utils import _add_embedding_config, _make_numpy_array
 
@@ -96,6 +96,11 @@ class SummaryToEventTransformer(object):
 
         event = event_pb2.Event(summary=summary)
         self._add_event(event, global_step)
+
+    def add_graph(self, graph):
+        """Adds a `Graph` protocol buffer to the event file."""
+        event = event_pb2.Event(graph_def=graph.SerializeToString())
+        self._add_event(event, None)
 
     def _add_event(self, event, step):
         event.wall_time = time.time()
@@ -463,6 +468,10 @@ class SummaryWriter(object):
         predictions = _make_numpy_array(predictions)
         self._file_writer.add_summary(pr_curve_summary(tag, labels, predictions,
                                                        num_thresholds, weights), global_step)
+
+    def add_graph_symbol(self, sym):
+        graph_def = _get_graph_proto(sym=sym)
+        self._file_writer.add_graph(graph_def)
 
     def flush(self):
         """Flushes pending events to the file."""
