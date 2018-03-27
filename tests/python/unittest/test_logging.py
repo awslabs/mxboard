@@ -113,7 +113,7 @@ def test_make_metadata_tsv():
     _make_metadata_tsv(data, _LOGDIR)
     file_path = os.path.join(_LOGDIR, 'metadata.tsv')
     data_loaded = np.loadtxt(file_path, dtype=data.dtype)
-    assert same(data.asnumpy(), data_loaded.reshape(data.shape))
+    assert_almost_equal(data.asnumpy(), data_loaded.reshape(data.shape), rtol=0.001, atol=0.001)
     safe_remove_file(file_path)
     safe_remove_logdir()
 

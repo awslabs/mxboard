@@ -32,7 +32,6 @@ import numpy as np
 from mxnet.ndarray import NDArray
 from mxnet.symbol import Symbol
 from mxnet.gluon import HybridBlock
-from mxnet.symbol import Variable
 from .proto.summary_pb2 import Summary
 from .proto.summary_pb2 import HistogramProto
 from .proto.summary_pb2 import SummaryMetadata
@@ -481,8 +480,8 @@ def _get_nodes_from_symbol(sym):
             kwargs['name'] = _scoped_name(op_node_name, node_name)
 
         if 'attrs' in node:
-            # TensorBoard would escape single quotation mark, replace it with space
-            attr = str(node['attrs']).replace("'", ' ')
+            # TensorBoard would escape quotation marks, replace it with space
+            attr = json.dumps(node['attrs'], sort_keys=True).replace("\"", ' ')
             attr = {'param': AttrValue(s=attr.encode(encoding='utf-8'))}
             kwargs['attr'] = attr
         node_def = NodeDef(**kwargs)
