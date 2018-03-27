@@ -389,8 +389,10 @@ def test_add_graph_gluon():
     with net.name_scope():
         net.add(nn.Dense(128, activation='relu'))
 
-    data = mx.sym.Variable('data')
-    _, sym = net._get_graph(data)
+    net.hybridize()
+    net.initialize()
+    net.forward(mx.nd.ones(1,))
+    _, sym = net._cached_graph
     nodes = _get_nodes_from_symbol(sym)
     expected_nodes = [NodeDef(name='data', op='null'),
                       NodeDef(name='hybridsequential0_dense0_fwd/hybridsequential0_dense0_weight', op='null',

@@ -31,7 +31,7 @@ import re as _re
 import numpy as np
 from mxnet.ndarray import NDArray
 from mxnet.symbol import Symbol
-from mxnet.gluon import Block
+from mxnet.gluon import HybridBlock
 from mxnet.symbol import Variable
 from .proto.summary_pb2 import Summary
 from .proto.summary_pb2 import HistogramProto
@@ -496,10 +496,14 @@ def _sym2pb(sym):
 
 
 def _net2pb(net):
-    if isinstance(net, Block):
-        data = Variable('data')
-        _, net = net._get_graph(data)
+    if isinstance(net, HybridBlock):
+        # TODO(junwu): may need a more approprite way to get symbol from a HybridBlock
+        if not net._cached_graph:
+            raise RuntimeError(
+                "Please first call net.hybridize() and then run forward with "
+                "this net at least once before calling add_graph().")
+        net = net._cached_graph[1]
     elif not isinstance(net, Symbol):
-        raise TypeError('only accepts mxnet.gluon.Block and mxnet.symbol.Symbol '
+        raise TypeError('only accepts mxnet.gluon.HybridBlock and mxnet.symbol.Symbol '
                         'as input network, received type {}'.format(str(type(net))))
     return _sym2pb(net)

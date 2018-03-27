@@ -104,9 +104,13 @@ Let's take a look at several simple examples demonstrating the use of MXBoard lo
 
 ### Graph
 Graphs are visual representations of neural networks. MXBoard supports visualizing MXNet neural
-networks in terms of [Symbol](https://github.com/apache/incubator-mxnet/blob/master/python/mxnet/symbol/symbol.py#L53)
-and [HybridBlock](https://github.com/apache/incubator-mxnet/blob/master/python/mxnet/gluon/block.py#L376).
-The following code would present the visualization of a toy network defined using symbols.
+networks in terms of
+[Symbol](https://mxnet.incubator.apache.org/api/python/symbol/symbol.html?highlight=symbol#mxnet.symbol.Symbol)
+and
+[HybridBlock](https://mxnet.incubator.apache.org/api/python/gluon/gluon.html?highlight=hybridblo#mxnet.gluon.HybridBlock).
+
+#### Symbol
+The following code would plot a toy network defined using symbols.
 Users can double click the node block to expand or collapse the node for
 exposing or hiding extra sub-nodes of an operator.
 ```python
@@ -132,17 +136,34 @@ with SummaryWriter(logdir='./logs') as sw:
 ```
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_symbol.png)
 
-Users can try the following code to visualize a much more sophisticated network:
-[Inception V3](https://arxiv.org/abs/1512.00567) defined in MXNet Gluon model zoo.
+#### HybridBlock
+To visualize a Gluon model built using `HybridBlock`s, users must first call `hybridize()`, `initialize()`,
+and `forward()` functions to generate a graph symbol which will be used later to plot network structures.
 ```python
+from mxnet.gluon import nn
 from mxboard import SummaryWriter
-from mxnet.gluon.model_zoo.vision import get_model
+import mxnet as mx
 
-net = get_model('inceptionv3')
+net = nn.HybridSequential()
+with net.name_scope():
+    net.add(nn.Dense(128, activation='relu'))
+    net.add(nn.Dense(64, activation='relu'))
+    net.add(nn.Dense(10))
+
+# The following three lines hybridize the network, initialize the parameters,
+# and run forward pass once to generate a symbol which will be used later
+# for plotting the network structure.
+net.hybridize()
+net.initialize()
+net.forward(mx.nd.ones((1,)))
 
 with SummaryWriter(logdir='./logs') as sw:
     sw.add_graph(net)
 ```
+![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_hybridblock.png)
+
+Users can explore more sophisticated network structures provided by
+[MXNet Gluon model zoo](https://mxnet.incubator.apache.org/api/python/gluon/model_zoo.html?highlight=model_zoo#api-reference).
 
 ### Scalar
 Scalar values are often plotted in terms of curves, such as training accuracy as time evolves. Here
