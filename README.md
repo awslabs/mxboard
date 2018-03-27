@@ -85,6 +85,7 @@ MXBoard provides the logging APIs through the `SummaryWriter` class.
     mxboard.SummaryWriter
     mxboard.SummaryWriter.add_audio
     mxboard.SummaryWriter.add_embedding
+    mxboard.SummaryWriter.add_graph
     mxboard.SummaryWriter.add_histogram
     mxboard.SummaryWriter.add_image
     mxboard.SummaryWriter.add_pr_curve
@@ -98,6 +99,48 @@ MXBoard provides the logging APIs through the `SummaryWriter` class.
 
 ## Examples
 Let's take a look at several simple examples demonstrating the use of MXBoard logging APIs.
+
+
+### Graph
+Graphs are visual representations of neural networks. MXBoard supports visualizing MXNet neural
+networks in terms of [Symbol](https://github.com/apache/incubator-mxnet/blob/master/python/mxnet/symbol/symbol.py#L53)
+and [HybridBlock](https://github.com/apache/incubator-mxnet/blob/master/python/mxnet/gluon/block.py#L376).
+The following code would present the visualization of a toy network defined using symbols.
+Users can double click the node block to expand or collapse the node for
+exposing or hiding extra sub-nodes of an operator.
+```python
+import mxnet as mx
+from mxboard import SummaryWriter
+
+data = mx.sym.Variable('data')
+weight = mx.sym.Variable('weight')
+bias = mx.sym.Variable('fc1_bias', lr_mult=1.0)
+conv1 = mx.symbol.Convolution(data=data, weight=weight, name='conv1', num_filter=32, kernel=(3, 3), stride=(2, 2))
+conv2 = mx.symbol.Convolution(data=data, weight=weight, name='conv2', num_filter=32, kernel=(3, 3), stride=(2, 2))
+conv3 = conv1 + conv2
+bn1 = mx.symbol.BatchNorm(data=conv3, name="bn1")
+act1 = mx.symbol.Activation(data=bn1, name='relu1', act_type="relu")
+sum1 = act1 + conv3
+mp1 = mx.symbol.Pooling(data=sum1, name='mp1', kernel=(2, 2), stride=(2, 2), pool_type='max')
+fc1 = mx.sym.FullyConnected(data=mp1, bias=bias, name='fc1', num_hidden=10, lr_mult=0)
+fc2 = mx.sym.FullyConnected(data=fc1, name='fc2', num_hidden=10, wd_mult=0.5)
+sc1 = mx.symbol.SliceChannel(data=fc2, num_outputs=10, name="slice_1", squeeze_axis=0)
+
+with SummaryWriter(logdir='./logs') as sw:
+    sw.add_graph(sc1)
+```
+![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_symbol.png)
+Users can try the following code to visualize a much more sophisticated network:
+[Inception V3](https://arxiv.org/abs/1512.00567) defined in MXNet Gluon model zoo.
+```python
+from mxboard import SummaryWriter
+from mxnet.gluon.model_zoo.vision import get_model
+
+net = get_model('inceptionv3')
+
+with SummaryWriter(logdir='./logs') as sw:
+    sw.add_graph(net)
+```
 
 ### Scalar
 Scalar values are often plotted in terms of curves, such as training accuracy as time evolves. Here
