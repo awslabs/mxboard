@@ -130,6 +130,7 @@ with SummaryWriter(logdir='./logs') as sw:
     sw.add_graph(sc1)
 ```
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_symbol.png)
+
 Users can try the following code to visualize a much more sophisticated network:
 [Inception V3](https://arxiv.org/abs/1512.00567) defined in MXNet Gluon model zoo.
 ```python
