@@ -19,7 +19,7 @@ and user-level logging APIs defined in `SummaryWriter` from
 [tensorboard-pytorch](https://github.com/lanpa/tensorboard-pytorch).
 The encoding algorithm used in writing protobuf objects into event files
 is directly borrowed from
-[TeamHG-Memex/tensorboard_logger)](https://github.com/TeamHG-Memex/tensorboard_logger).
+[TeamHG-Memex/tensorboard_logger](https://github.com/TeamHG-Memex/tensorboard_logger).
 
 ### How to install MXBoard from PyPI
 ```bash
