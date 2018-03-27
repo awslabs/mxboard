@@ -29,7 +29,7 @@ from .proto import event_pb2
 from .proto import summary_pb2
 from .event_file_writer import EventFileWriter
 from .summary import scalar_summary, histogram_summary, image_summary, audio_summary
-from .summary import text_summary, pr_curve_summary, _sym2pb
+from .summary import text_summary, pr_curve_summary, _net2pb
 from .utils import _save_embedding_tsv, _make_sprite_image, _make_metadata_tsv
 from .utils import _add_embedding_config, _make_numpy_array
 
@@ -469,17 +469,17 @@ class SummaryWriter(object):
         self._file_writer.add_summary(pr_curve_summary(tag, labels, predictions,
                                                        num_thresholds, weights), global_step)
 
-    def add_graph(self, sym):
+    def add_graph(self, net):
         """Given a symbol representing the network structure of an MXNet model, write it the event
         file for visualization in TensorBoard. The parameters will be assigned with the scope
         name with the node name of the operator they belong to.
 
         Parameters
         ----------
-            sym : Symbol
+            net : Symbol
                 An mxnet.symbol.Symbol object defining the structure of a network.
         """
-        self._file_writer.add_graph(_sym2pb(sym=sym))
+        self._file_writer.add_graph(_net2pb(net=net))
 
     def flush(self):
         """Flushes pending events to the file."""

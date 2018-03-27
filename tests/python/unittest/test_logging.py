@@ -19,12 +19,14 @@ import shutil
 from mxboard import SummaryWriter
 from mxboard.utils import _make_metadata_tsv, make_image_grid, _make_sprite_image
 from mxboard.utils import _add_embedding_config, _save_embedding_tsv
-from mxboard.summary import _get_nodes_from_symbol, _sym2pb
+from mxboard.summary import _get_nodes_from_symbol, _net2pb
 from mxboard.proto.node_def_pb2 import NodeDef
 from mxboard.proto.attr_value_pb2 import AttrValue
 from mxboard.proto.graph_pb2 import GraphDef
 from mxboard.proto.versions_pb2 import VersionDef
 from mxnet.test_utils import *
+from mxnet.gluon import nn
+import mxnet as mx
 from common import with_seed, setup_module
 
 # DO NOT CHANGE THESE NAMES AS THEY FOLLOW THE DEFINITIONS IN TENSORBOARD
@@ -352,7 +354,7 @@ def test_add_pr_curve():
     check_event_file_and_remove_logdir()
 
 
-def test_add_graph():
+def test_add_graph_symbol():
     data = mx.sym.Variable('data')
     conv = mx.sym.Convolution(data, kernel=(2, 2), num_filter=2)
     nodes = _get_nodes_from_symbol(conv)
@@ -373,12 +375,55 @@ def test_add_graph():
 
     # check _sym2pb
     expected_graph = GraphDef(node=expected_nodes, versions=VersionDef(producer=100))
-    graph = _sym2pb(conv)
+    graph = _net2pb(conv)
     assert expected_graph == graph
 
     # check add_graph
     with SummaryWriter(logdir=_LOGDIR) as sw:
         sw.add_graph(conv)
+    check_event_file_and_remove_logdir()
+
+
+def test_add_graph_gluon():
+    net = nn.HybridSequential()
+    with net.name_scope():
+        net.add(nn.Dense(128, activation='relu'))
+
+    data = mx.sym.Variable('data')
+    _, sym = net._get_graph(data)
+    nodes = _get_nodes_from_symbol(sym)
+    expected_nodes = [NodeDef(name='data', op='null'),
+                      NodeDef(name='hybridsequential0_dense0_fwd/hybridsequential0_dense0_weight', op='null',
+                              attr={'param': AttrValue(
+                                  s='{ __dtype__ :  0 ,  __lr_mult__ :  1.0 ,  __shape__ :  '
+                                    '(128, 0) ,  __wd_mult__ :  1.0 }'.encode(encoding='utf-8'))}),
+                      NodeDef(name='hybridsequential0_dense0_fwd/hybridsequential0_dense0_bias', op='null',
+                              attr={'param': AttrValue(
+                                  s='{ __dtype__ :  0 ,  __init__ :  zeros ,  __lr_mult__ :  1.0 ,  __shape__ :  '
+                                    '(128,) ,  __wd_mult__ :  1.0 }'.encode(encoding='utf-8'))}),
+                      NodeDef(name='hybridsequential0_dense0_fwd/hybridsequential0_dense0_fwd', op='FullyConnected',
+                              input=['data', 'hybridsequential0_dense0_fwd/hybridsequential0_dense0_weight',
+                                     'hybridsequential0_dense0_fwd/hybridsequential0_dense0_bias'],
+                              attr={'param': AttrValue(
+                                  s='{ flatten :  True ,  no_bias :  False ,  '
+                                    'num_hidden :  128 }'.encode(encoding='utf-8'))}),
+                      NodeDef(name='hybridsequential0_dense0_relu_fwd/hybridsequential0_dense0_relu_fwd',
+                              op='Activation', input=['hybridsequential0_dense0_fwd/hybridsequential0_dense0_fwd'],
+                              attr={'param': AttrValue(
+                                  s='{ act_type :  relu }'.encode(encoding='utf-8'))})
+                      ]
+    # check _get_nodes_from_symbol
+    for expected_node, node in zip(expected_nodes, nodes):
+        assert expected_node == node
+
+    # check _sym2pb
+    expected_graph = GraphDef(node=expected_nodes, versions=VersionDef(producer=100))
+    graph = _net2pb(net)
+    assert expected_graph == graph
+
+    # check add_graph
+    with SummaryWriter(logdir=_LOGDIR) as sw:
+        sw.add_graph(net)
     check_event_file_and_remove_logdir()
 
 
