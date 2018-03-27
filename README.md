@@ -70,6 +70,7 @@ the logging APIs:
 
 ### What data types in TensorBoard GUI are supported by MXNet logging APIs
 We currently support the following data types that you can find on the TensorBoard GUI:
+- [GRAPHS](https://www.tensorflow.org/versions/r1.1/get_started/graph_viz)
 - SCALARS
 - IMAGES
 - [HISTOGRAMS](https://www.tensorflow.org/programmers_guide/tensorboard_histograms)
