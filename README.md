@@ -115,8 +115,8 @@ from mxboard import SummaryWriter
 data = mx.sym.Variable('data')
 weight = mx.sym.Variable('weight')
 bias = mx.sym.Variable('fc1_bias', lr_mult=1.0)
-conv1 = mx.symbol.Convolution(data=data, weight=weight, name='conv1', num_filter=32, kernel=(3, 3), stride=(2, 2))
-conv2 = mx.symbol.Convolution(data=data, weight=weight, name='conv2', num_filter=32, kernel=(3, 3), stride=(2, 2))
+conv1 = mx.symbol.Convolution(data=data, weight=weight, name='conv1', num_filter=32, kernel=(3, 3))
+conv2 = mx.symbol.Convolution(data=data, weight=weight, name='conv2', num_filter=32, kernel=(3, 3))
 conv3 = conv1 + conv2
 bn1 = mx.symbol.BatchNorm(data=conv3, name="bn1")
 act1 = mx.symbol.Activation(data=bn1, name='relu1', act_type="relu")
