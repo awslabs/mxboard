@@ -137,8 +137,12 @@ with SummaryWriter(logdir='./logs') as sw:
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_symbol.png)
 
 #### HybridBlock
-To visualize a Gluon model built using `HybridBlock`s, users must first call `hybridize()`, `initialize()`,
-and `forward()` functions to generate a graph symbol which will be used later to plot network structures.
+To visualize a Gluon model built using `HybridBlock`s, users must first call
+[`hybridize()`](https://mxnet.incubator.apache.org/api/python/gluon/gluon.html?highlight=hybridize#mxnet.gluon.Block.hybridize),
+[`initialize()`](https://mxnet.incubator.apache.org/api/python/gluon/gluon.html?highlight=hybridize#mxnet.gluon.Block.initialize),
+and
+[`forward()`](https://mxnet.incubator.apache.org/api/python/gluon/gluon.html?highlight=hybridize#mxnet.gluon.HybridBlock.forward)
+functions to generate a graph symbol which will be used later to plot network structures.
 ```python
 from mxnet.gluon import nn
 from mxboard import SummaryWriter
@@ -163,10 +167,10 @@ with SummaryWriter(logdir='./logs') as sw:
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_hybridblock.png)
 
 Users can explore more sophisticated network structures provided by
-[MXNet Gluon model zoo](https://mxnet.incubator.apache.org/api/python/gluon/model_zoo.html?highlight=model_zoo#api-reference).
+[MXNet Gluon Model Zoo](https://mxnet.incubator.apache.org/api/python/gluon/model_zoo.html?highlight=model_zoo#api-reference).
 
 ### Scalar
-Scalar values are often plotted in terms of curves, such as training accuracy as time evolves. Here
+Scalar values often appear in terms of curves, such as training accuracy as time evolves. Here
 is an example of plotting the curve of `y=sin(x/100)` where `x` is in the range of `[0, 2*pi]`.
 ```python
 import numpy as np
