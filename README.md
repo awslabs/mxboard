@@ -156,7 +156,7 @@ with net.name_scope():
 
 # The following three lines hybridize the network, initialize the parameters,
 # and run forward pass once to generate a symbol which will be used later
-# for plotting the network structure.
+# for plotting the network.
 net.hybridize()
 net.initialize()
 net.forward(mx.nd.ones((1,)))
@@ -168,6 +168,22 @@ with SummaryWriter(logdir='./logs') as sw:
 
 Users can explore more sophisticated network structures provided by
 [MXNet Gluon Model Zoo](https://mxnet.incubator.apache.org/api/python/gluon/model_zoo.html?highlight=model_zoo#api-reference).
+For example, the following would plot the network
+[Inception V3](http://arxiv.org/abs/1512.00567)
+for you.
+```python
+from mxnet.gluon.model_zoo.vision import get_model
+from mxboard import SummaryWriter
+import mxnet as mx
+
+net = get_model('inceptionv3')
+net.hybridize()
+net.initialize()
+net.forward(mx.nd.ones((1, 3, 299, 299)))
+
+with SummaryWriter(logdir='./logs') as sw:
+    sw.add_graph(net)
+```
 
 ### Scalar
 Scalar values often appear in terms of curves, such as training accuracy as time evolves. Here

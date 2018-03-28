@@ -102,6 +102,11 @@ class EventsWriter(object):
             self._recordio_writer = None
 
 
+def _get_sentinel_event():
+    """Generate a sentinel event for terminating worker."""
+    return event_pb2.Event()
+
+
 class EventFileWriter(object):
     """This class is adapted from EventFileWriter in Tensorflow:
     https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/summary/writer/event_file_writer.py
@@ -125,7 +130,7 @@ class EventFileWriter(object):
         self._event_queue = six.moves.queue.Queue(max_queue)
         self._ev_writer = EventsWriter(os.path.join(self._logdir, "events"))
         self._flush_secs = flush_secs
-        self._sentinel_event = self._get_sentinel_event()
+        self._sentinel_event = _get_sentinel_event()
         if filename_suffix is not None:
             self._ev_writer.init_with_suffix(filename_suffix)
         self._closed = False
@@ -133,10 +138,6 @@ class EventFileWriter(object):
                                           self._flush_secs, self._sentinel_event)
 
         self._worker.start()
-
-    def _get_sentinel_event(self):
-        """Generate a sentinel event for terminating worker."""
-        return event_pb2.Event()
 
     def get_logdir(self):
         """Returns the directory where event file will be written."""

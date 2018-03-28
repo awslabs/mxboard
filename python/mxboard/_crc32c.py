@@ -118,7 +118,7 @@ def crc_update(crc, data):
         buf = data
 
     crc ^= _MASK
-    for b in buf:
+    for b in buf:  # pylint: disable=invalid-name
         table_index = (crc ^ b) & 0xff
         crc = (CRC_TABLE[table_index] ^ (crc >> 8)) & _MASK
     return crc ^ _MASK
