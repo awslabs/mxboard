@@ -73,7 +73,7 @@ tensorboard --help
 to verify that the TensorBoard binary has been installed correctly.
 
 ### Other required packages
-MXBoard relies on the following packages for logging data.
+MXBoard relies on the following packages for data logging.
 - [MXNet](https://pypi.python.org/pypi/mxnet)
 - [protobuf3](https://pypi.python.org/pypi/protobuf)
 - [six](https://pypi.python.org/pypi/six)
@@ -114,8 +114,8 @@ in the TensorBoard GUI. You will see data distribution changing as time evolves.
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_histogram_norm.png)
 
 ## More tutorials
-- [Logging various data types](https://github.com/awslabs/mxboard/blob/tensorboard_logging/demo.md)
-- [Training an MNIST model with MXBoard](https://github.com/awslabs/mxboard/tree/tensorboard_logging/examples/mnist)
+- [Logging various data types](https://github.com/awslabs/mxboard/blob/master/demo.md)
+- [Training an MNIST model with MXBoard](https://github.com/awslabs/mxboard/blob/master/examples/mnist/train_mnist_mxboard.py)
 
 ## References
 1. https://github.com/TeamHG-Memex/tensorboard_logger
