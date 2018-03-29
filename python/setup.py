@@ -52,7 +52,7 @@ setup(
     version='0.1.0',
     description='A logging tool for visualizing MXNet data in TensorBoard',
     author='Amazon Web Services',
-    url='https://github.com/awslabs/mxnet-tensorboard',
+    url='https://github.com/awslabs/mxboard',
     packages=find_packages(),
     include_package_data=True,
     license='Apache License 2.0',
