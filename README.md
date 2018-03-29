@@ -63,7 +63,7 @@ To visualize those data in browsers, users still have to install
 [TensorBoard](https://www.tensorflow.org/versions/r1.1/get_started/summaries_and_tensorboard)
 separately.
 ```bash
-pip install tensorflow && pip install tensorboard
+pip install tensorflow tensorboard
 ```
 Type
 ```bash
@@ -109,7 +109,7 @@ the port number `8888` may be occupied by other applications and launching Tenso
 may fail. You may choose a different available port number.
 
 3. In the browser, enter the address `127.0.0.1:8888`, and click the tab **HISTOGRAMS**
-in the TensorBoard GUI. You will see data distribution change over time as the following.
+in the TensorBoard GUI. You will see data distribution changing as time evolves.
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_histogram_norm.png)
 
 ## More tutorials
