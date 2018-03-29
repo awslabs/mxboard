@@ -1,0 +1,7 @@
+*.pyc
+.idea
+python/mxboard/proto/[a-z]*.py*
+python/build
+python/dist
+python/mxboard.egg-info
+*__pycache__*
