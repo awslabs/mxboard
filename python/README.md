@@ -4,7 +4,7 @@ This directory and nested files contain MXBoard Python package.
 
 ## Installation
 To install MXBoard Python package, visit MXBoard
-[Install Instruction](https://github.com/awslabs/mxboard/tree/tensorboard_logging#installation)
+[Install Instruction](https://github.com/awslabs/mxboard#installation)
 
 
 ## Running the unit tests
