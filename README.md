@@ -112,8 +112,9 @@ may fail. You may choose a different available port number.
 in the TensorBoard GUI. You will see something like the following.
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_histogram_norm.png)
 
-More examples of logging different data types can be found here in
-[demo.md](https://github.com/reminisce/mxnet-tensorboard/blob/tensorboard_logging/demo.md).
+## More tutorials
+- [Logging various data types](https://github.com/reminisce/mxnet-tensorboard/blob/tensorboard_logging/demo.md)
+- [Training an MNIST model with MXBoard](https://github.com/reminisce/mxnet-tensorboard/tree/tensorboard_logging/examples/mnist)
 
 ## References
 1. https://github.com/TeamHG-Memex/tensorboard_logger
