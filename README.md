@@ -108,8 +108,8 @@ Note that in some situations,
 the port number `8888` may be occupied by other applications and launching TensorBoard
 may fail. You may choose a different available port number.
 
-3. In browser, enter the address `127.0.0.1:8888`, and click the tab **HISTOGRAMS**
-in the TensorBoard GUI. You will see something like the following.
+3. In the browser, enter the address `127.0.0.1:8888`, and click the tab **HISTOGRAMS**
+in the TensorBoard GUI. You will see data distribution change over time as the following.
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_histogram_norm.png)
 
 ## More tutorials

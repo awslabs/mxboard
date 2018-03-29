@@ -221,7 +221,7 @@ def audio_summary(tag, audio, sample_rate=44100):
     wave_writer.setsampwidth(2)
     wave_writer.setframerate(sample_rate)
     tensor_enc = b''
-    for v in tensor_list:
+    for v in tensor_list:  # pylint: disable=invalid-name
         tensor_enc += struct.pack('<h', v)
     wave_writer.writeframes(tensor_enc)
     wave_writer.close()
@@ -345,21 +345,6 @@ def _compute_curve(labels, predictions, num_thresholds, weights=None):
     return np.stack((tp, fp, tn, fn, precision, recall))
 
 
-def _get_test_graph():
-    nodes = []
-    nodes.append({'name': 'conv/conv', 'op': 'Convolution', 'inputs': ['data', 'conv/weight'],
-                  'attr': str({'kernel': '(2, 2)'}).replace("'", ' ')})
-    nodes.append({'name': 'bn/bn', 'op': 'BatchNorm', 'inputs': ['data', 'conv/conv'],
-                  'attr': 'bn attrs'})
-    nodes.append({'name': 'data', 'op': 'null', 'inputs': [], 'attr': 'input'})
-    nodes.append({'name': 'conv/weight', 'op': 'null', 'inputs': [], 'attr': 'input'})
-    proto_nodes = []
-    for node in nodes:
-        proto_nodes.append(NodeDef(name=node['name'], op=node['op'], input=node['inputs'],
-                                   attr={'mxboard': AttrValue(s=node['attr'].encode(encoding='utf-8'))}))
-    return GraphDef(node=proto_nodes, versions=VersionDef(producer=22))
-
-
 def _scoped_name(scope_name, node_name):
     return '/'.join([scope_name, node_name])
 
@@ -374,7 +359,7 @@ def _get_nodes_from_symbol(sym):
     nodes = conf['nodes']
     data2op = {}  # key: data id, value: list of ops to whom data is an input
     for i, node in enumerate(nodes):
-        if 'null' != node['op']:  # node is an operator
+        if node['op'] != 'null':  # node is an operator
             input_list = node['inputs']
             for idx in input_list:
                 if idx[0] == 0:  # do not include 'data' node in the op scope
@@ -398,13 +383,13 @@ def _get_nodes_from_symbol(sym):
         node_name = node['name']
         op_name = node['op']
         kwargs = {'op': op_name, 'name': node_name}
-        if 'null' != op_name:  # node is an operator
+        if op_name != 'null':  # node is an operator
             inputs = []
             input_list = node['inputs']
             for idx in input_list:
                 input_node = nodes[idx[0]]
                 input_node_name = input_node['name']
-                if 'null' != input_node['op']:
+                if input_node['op'] != 'null':
                     inputs.append(_scoped_name(input_node_name, input_node_name))
                 elif idx[0] in data2op and len(data2op[idx[0]]) == 1 and data2op[idx[0]][0] == i:
                     # the data is only as an input to nodes[i], no else

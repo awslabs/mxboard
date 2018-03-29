@@ -12,7 +12,7 @@ The `SummaryWriter` object instance is used as the following:
 ```python
 sw = SummaryWriter(logdir='logs', flush_secs=5)
 ```
-Here we specify the logging directory is the `logs` under the current folder and flushing
+Here we specify the logging directory as `logs` under the current folder and flushing
 data to event files every five seconds in order to refresh the visualization web page
 more frequently.
 

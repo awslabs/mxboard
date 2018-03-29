@@ -38,23 +38,26 @@ class RecordWriter(object):
         self._writer = None
         try:
             self._writer = open(path, 'wb')
-        except (OSError, IOError) as e:
-            raise ValueError('failed to open file {}: {}'.format(path, str(e)))
+        except (OSError, IOError) as err:
+            raise ValueError('failed to open file {}: {}'.format(path, str(err)))
 
     def __del__(self):
         self.close()
 
     def write_record(self, event_str):
+        """Writes a serialized event to file."""
         header = struct.pack('Q', len(event_str))
         header += struct.pack('I', masked_crc32c(header))
         footer = struct.pack('I', masked_crc32c(event_str))
         self._writer.write(header + event_str + footer)
 
     def flush(self):
+        """Flushes the event string to file."""
         assert self._writer is not None
         self._writer.flush()
 
     def close(self):
+        """Closes the record writer."""
         if self._writer is not None:
             self.flush()
             self._writer.close()
@@ -64,11 +67,11 @@ class RecordWriter(object):
 def masked_crc32c(data):
     """Copied from
     https://github.com/TeamHG-Memex/tensorboard_logger/blob/master/tensorboard_logger/tensorboard_logger.py"""
-    x = u32(crc32c(data))
+    x = u32(crc32c(data))  # pylint: disable=invalid-name
     return u32(((x >> 15) | u32(x << 17)) + 0xa282ead8)
 
 
-def u32(x):
+def u32(x):  # pylint: disable=invalid-name
     """Copied from
     https://github.com/TeamHG-Memex/tensorboard_logger/blob/master/tensorboard_logger/tensorboard_logger.py"""
     return x & 0xffffffff
