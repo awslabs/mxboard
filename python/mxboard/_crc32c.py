@@ -126,7 +126,7 @@ def crc_update(crc, data):
 
 def crc_finalize(crc):
     """Finalizes CRC-32C checksum. Copied from
-    https://github.com/TeamHG-Memex/tensorboard_logger/blob/master/tensorboard_logger/_crc32c.py
+    https://github.com/TeamHG-Memex/tensorboard_logger/blob/master/tensorboard_logger/crc32c.py
     This function should be called as last step of crc calculation.
 
     Parameter
