@@ -113,8 +113,8 @@ in the TensorBoard GUI. You will see data distribution change over time as the f
 ![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_histogram_norm.png)
 
 ## More tutorials
-- [Logging various data types](https://github.com/reminisce/mxnet-tensorboard/blob/tensorboard_logging/demo.md)
-- [Training an MNIST model with MXBoard](https://github.com/reminisce/mxnet-tensorboard/tree/tensorboard_logging/examples/mnist)
+- [Logging various data types](https://github.com/awslabs/mxnet-tensorboard/blob/tensorboard_logging/demo.md)
+- [Training an MNIST model with MXBoard](https://github.com/awslabs/mxnet-tensorboard/tree/tensorboard_logging/examples/mnist)
 
 ## References
 1. https://github.com/TeamHG-Memex/tensorboard_logger
