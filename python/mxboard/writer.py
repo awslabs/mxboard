@@ -476,8 +476,10 @@ class SummaryWriter(object):
 
         Parameters
         ----------
-            net : Symbol
-                An mxnet.symbol.Symbol object defining the structure of a network.
+            net : Symbol or HybridBlock
+                An mxnet.symbol.Symbol or mxnet.gluon.HybridBlock object defining
+                the structure of a network. If it's a HybridBlock, users must call hybridize()
+                and forward() once before passing to this function.
         """
         self._file_writer.add_graph(_net2pb(net=net))
 
