@@ -22,7 +22,7 @@ is directly borrowed from
 [TeamHG-Memex/tensorboard_logger](https://github.com/TeamHG-Memex/tensorboard_logger).
 
 MXBoard currently only supports a set of Python APIs for logging the following data types
-listed in the TensorBoard GUI. Logging APIs for languages may be added in the future.
+listed in the TensorBoard GUI. Logging APIs for other languages may be added in the future.
 - [GRAPHS](https://www.tensorflow.org/versions/r1.1/get_started/graph_viz)
 - SCALARS
 - IMAGES
