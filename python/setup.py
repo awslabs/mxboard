@@ -49,9 +49,10 @@ if compile_summary_protobuf() != 0:
 
 setup(
     name='mxboard',
-    version='0.1.0',
+    version='0.1.0rc0',
     description='A logging tool for visualizing MXNet data in TensorBoard',
     author='Amazon Web Services',
+    author_email='jwum@amazon.com',
     url='https://github.com/awslabs/mxboard',
     packages=find_packages(),
     include_package_data=True,
