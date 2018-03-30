@@ -29,7 +29,7 @@ if "--inplace" in sys.argv:
     kwargs = {}
 else:
     from setuptools import setup
-    kwargs = {'install_requires': ['mxnet>1.1.0', 'numpy<=1.13.3,>=1.8.2', 'protobuf>=3.0.0', 'Pillow', 'six'],
+    kwargs = {'install_requires': ['numpy', 'protobuf>=3.0.0', 'Pillow', 'six'],
               'zip_safe': False}
 
 
@@ -50,7 +50,7 @@ if compile_summary_protobuf() != 0:
 
 setup(
     name='mxboard',
-    version='0.1.0rc3',
+    version='0.1.0',
     description='A logging tool for visualizing MXNet data in TensorBoard',
     author='Amazon Web Services',
     author_email='jwum@amazon.com',
