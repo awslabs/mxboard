@@ -29,7 +29,7 @@ if "--inplace" in sys.argv:
     kwargs = {}
 else:
     from setuptools import setup
-    kwargs = {'install_requires': ['mxnet', 'numpy<=1.13.3,>=1.8.2', 'protobuf>=3.0.0', 'Pillow', 'six'],
+    kwargs = {'install_requires': ['mxnet>1.1.0', 'numpy<=1.13.3,>=1.8.2', 'protobuf>=3.0.0', 'Pillow', 'six'],
               'zip_safe': False}
 
 
@@ -42,14 +42,15 @@ def compile_summary_protobuf():
 
 
 if compile_summary_protobuf() != 0:
-    print('WARNING: Compiling summary protocol buffers failed. You will not be '
+    print('ERROR: Compiling summary protocol buffers failed. You will not be '
           'able to use the logging APIs for visualizing MXNet data in TensorBoard. '
           'Please make sure that you have installed protobuf3 compiler and runtime correctly.')
+    sys.exit(1)
 
 
 setup(
     name='mxboard',
-    version='0.1.0rc0',
+    version='0.1.0rc3',
     description='A logging tool for visualizing MXNet data in TensorBoard',
     author='Amazon Web Services',
     author_email='jwum@amazon.com',
