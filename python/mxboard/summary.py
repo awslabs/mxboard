@@ -29,6 +29,18 @@ import struct
 import json
 import re as _re
 import numpy as np
+
+try:
+    import mxnet
+    from distutils.version import LooseVersion
+    if LooseVersion(mxnet.__version__) < LooseVersion('1.2.0'):
+        logging.warning('The currently installed MXNet version %s is less than 1.2.0.'
+                        ' Some functionality of MXBoard may not work.', mxnet.__version__)
+except ImportError:
+    raise ImportError('MXBoard requires MXNet with version >= 1.2.0.'
+                      ' Please follow the instruction here to install MXNet first.'
+                      ' http://mxnet.incubator.apache.org/install/index.html')
+
 from mxnet.ndarray import NDArray
 from mxnet.symbol import Symbol
 from mxnet.gluon import HybridBlock
