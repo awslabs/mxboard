@@ -428,7 +428,7 @@ class SummaryWriter(object):
             _make_sprite_image(images, save_path)
         _save_embedding_tsv(embedding, save_path)
         _add_embedding_config(self.get_logdir(), str(global_step).zfill(5), labels is not None,
-                              images.shape, tag)
+                              images.shape if images is not None else None, tag)
 
     def add_pr_curve(self, tag, labels, predictions, num_thresholds,
                      global_step=None, weights=None):
