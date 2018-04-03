@@ -50,6 +50,8 @@ def make_logdir():
 
 
 def safe_remove_file(file_path):
+    if file_path is None:
+        return
     if file_exists(file_path):
         try:
             os.remove(file_path)
@@ -303,28 +305,38 @@ def test_add_text():
     check_and_remove_logdir_for_text()
 
 
-def check_and_remove_for_embedding(global_step):
+def check_and_remove_for_embedding(images=None, labels=None, global_step=None):
     """1. verify projector_config.pbtxt exists under _LOGDIR.
     2. verify folder str(global_step).zfill(5) exists under _LOGDIR.
     3. verify metadata.tsv exists under _LOGDIR/str(global_step).zfill(5).
     4. verify sprinte.png exists under _LOGDIR/str(global_step).zfill(5).
     5. verify tensors.tsv exists under _LOGDIR/str(global_step).zfill(5).
     6. remove all of them and _LOGDIR."""
+    if global_step is None:
+        global_step = 0
     # step 1
     projector_file_path = os.path.join(_LOGDIR, _PROJECTOR_CONFIG_PBTXT)
     assert file_exists(projector_file_path)
+
+    # embedding tensor must exist
     global_step_dir_path = os.path.join(_LOGDIR, str(global_step).zfill(5))
     assert dir_exists(global_step_dir_path)
-    metadata_tsv_path = os.path.join(global_step_dir_path, _METADATA_TSV)
-    assert file_exists(metadata_tsv_path)
-    sprint_png_path = os.path.join(global_step_dir_path, _SPRITE_PNG)
-    assert file_exists(sprint_png_path)
     tensors_tsv_path = os.path.join(global_step_dir_path, _TENSORS_TSV)
     assert file_exists(tensors_tsv_path)
 
+    metadata_tsv_path = None
+    if labels is not None:  # has labels, metadata.tsv must exist
+        metadata_tsv_path = os.path.join(global_step_dir_path, _METADATA_TSV)
+        assert file_exists(metadata_tsv_path)
+
+    sprite_png_path = None
+    if images is not None:  # has images, sprite image must exist
+        sprite_png_path = os.path.join(global_step_dir_path, _SPRITE_PNG)
+        assert file_exists(sprite_png_path)
+
     safe_remove_file(projector_file_path)
     safe_remove_file(metadata_tsv_path)
-    safe_remove_file(sprint_png_path)
+    safe_remove_file(sprite_png_path)
     safe_remove_file(tensors_tsv_path)
     safe_remove_dir(global_step_dir_path)
     safe_remove_logdir()
@@ -332,15 +344,23 @@ def check_and_remove_for_embedding(global_step):
 
 @with_seed()
 def test_add_embedding():
+    def check_add_embedding(embedding, images=None, labels=None, global_step=None):
+        with SummaryWriter(logdir=_LOGDIR) as sw:
+            sw.add_embedding(tag='test_add_embedding', embedding=embedding, labels=labels,
+                             images=images, global_step=global_step)
+        check_and_remove_for_embedding(images=images, labels=labels, global_step=global_step)
+
     batch_size = 10
     embedding = mx.nd.uniform(shape=(batch_size, 20))
     labels = mx.nd.uniform(low=1, high=2, shape=(batch_size,)).astype('int32')
     images = mx.nd.uniform(shape=(batch_size, 3, 10, 10))
     global_step = np.random.randint(low=0, high=999999)
-    with SummaryWriter(logdir=_LOGDIR) as sw:
-        sw.add_embedding(tag='test_add_embedding', embedding=embedding, labels=labels,
-                         images=images, global_step=global_step)
-    check_and_remove_for_embedding(global_step)
+
+    check_add_embedding(embedding, labels=labels, images=images, global_step=global_step)
+    check_add_embedding(embedding, images=images, global_step=global_step)
+    check_add_embedding(embedding, labels=labels, global_step=global_step)
+    check_add_embedding(embedding, global_step=global_step)
+    check_add_embedding(embedding)
 
 
 @with_seed()
