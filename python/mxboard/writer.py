@@ -393,7 +393,7 @@ class SummaryWriter(object):
                 Name for the `embedding`.
             embedding : MXNet `NDArray` or  `numpy.ndarray`
                 A matrix whose each row is the feature vector of a data point.
-            labels : list of elements that can be converted to strings
+            labels : MXNet `NDArray` or `numpy.ndarray` or a list of elements convertible to str.
                 Labels corresponding to the data points in the `embedding`.
             images : MXNet `NDArray` or `numpy.ndarray`
                 Images of format NCHW corresponding to the data points in the `embedding`.
@@ -412,8 +412,6 @@ class SummaryWriter(object):
         except OSError:
             logging.warning('embedding dir exists, did you set global_step for add_embedding()?')
         if labels is not None:
-            if labels.ndim != 1:
-                raise ValueError('expected 1D ndarray as labels')
             if embedding_shape[0] != len(labels):
                 raise ValueError('expected equal values of embedding first dim and length of '
                                  'labels, while received %d and %d for each'
