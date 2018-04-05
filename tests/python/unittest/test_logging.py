@@ -136,7 +136,6 @@ def test_make_metadata_tsv():
 
 
 @remove_logdir()
-@remove_logdir()
 @with_seed()
 def test_make_image_grid():
     def test_2d_input():

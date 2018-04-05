@@ -37,7 +37,7 @@ class EventsWriter(object):
     """Writes `Event` protocol buffers to an event file. This class is ported from
     EventsWriter defined in
     https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/util/events_writer.cc"""
-    def __init__(self, file_prefix):
+    def __init__(self, file_prefix, verbose=True):
         """
         Events files have a name of the form
         '/file/path/events.out.tfevents.[timestamp].[hostname][file_suffix]'
@@ -47,6 +47,7 @@ class EventsWriter(object):
         self._filename = None
         self._recordio_writer = None
         self._num_outstanding_events = 0
+        self._verbose = verbose
 
     def __del__(self):
         self.close()
@@ -58,7 +59,8 @@ class EventsWriter(object):
                          + "." + socket.gethostname() + self._file_suffix
         self._recordio_writer = RecordWriter(self._filename)
         logging.basicConfig(filename=self._filename)
-        logging.info('Successfully opened events file: %s', self._filename)
+        if self._verbose:
+            logging.info('Successfully opened events file: %s', self._filename)
         event = event_pb2.Event()
         event.wall_time = time.time()
         self.write_event(event)
@@ -88,10 +90,11 @@ class EventsWriter(object):
         if self._num_outstanding_events == 0 or self._recordio_writer is None:
             return
         self._recordio_writer.flush()
-        if self._num_outstanding_events != 1:
-            logging.info('Wrote %d events to disk', self._num_outstanding_events)
-        else:
-            logging.info('Wrote %d event to disk', self._num_outstanding_events)
+        if self._verbose:
+            if self._num_outstanding_events != 1:
+                logging.info('Wrote %d events to disk', self._num_outstanding_events)
+            else:
+                logging.info('Wrote %d event to disk', self._num_outstanding_events)
         self._num_outstanding_events = 0
 
     def close(self):
@@ -116,7 +119,7 @@ class EventFileWriter(object):
     is encoded using the tfrecord format, which is similar to RecordIO.
     """
 
-    def __init__(self, logdir, max_queue=10, flush_secs=120, filename_suffix=None):
+    def __init__(self, logdir, max_queue=10, flush_secs=120, filename_suffix=None, verbose=True):
         """Creates a `EventFileWriter` and an event file to write to.
         On construction the summary writer creates a new event file in `logdir`.
         This event file will contain `Event` protocol buffers, which are written to
@@ -128,7 +131,7 @@ class EventFileWriter(object):
         if not os.path.exists(self._logdir):
             os.makedirs(self._logdir)
         self._event_queue = six.moves.queue.Queue(max_queue)
-        self._ev_writer = EventsWriter(os.path.join(self._logdir, "events"))
+        self._ev_writer = EventsWriter(os.path.join(self._logdir, "events"), verbose=verbose)
         self._flush_secs = flush_secs
         self._sentinel_event = _get_sentinel_event()
         if filename_suffix is not None:

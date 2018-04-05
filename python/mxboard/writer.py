@@ -119,7 +119,7 @@ class FileWriter(SummaryToEventTransformer):
     a mechanism to create an event file in a given directory and add summaries and events to it.
     The class updates the file contents asynchronously.
     """
-    def __init__(self, logdir, max_queue=10, flush_secs=120, filename_suffix=None):
+    def __init__(self, logdir, max_queue=10, flush_secs=120, filename_suffix=None, verbose=True):
         """Creates a `FileWriter` and an event file.
         On construction the summary writer creates a new event file in `logdir`.
         This event file will contain `Event` protocol buffers constructed when you
@@ -135,8 +135,10 @@ class FileWriter(SummaryToEventTransformer):
                 How often, in seconds, to flush the pending events and summaries to disk.
             filename_suffix : str
                 Every event file's name is suffixed with `filename_suffix` if provided.
+            verbose : bool
+                Determines whether to print logging messages.
         """
-        event_writer = EventFileWriter(logdir, max_queue, flush_secs, filename_suffix)
+        event_writer = EventFileWriter(logdir, max_queue, flush_secs, filename_suffix, verbose)
         super(FileWriter, self).__init__(event_writer)
 
     def __enter__(self):
@@ -197,7 +199,7 @@ class SummaryWriter(object):
     >>> with SummaryWriter(logdir='logs') as sw:
     >>>     sw.add_histogram(tag='my_hist', values=data, global_step=0, bins=100)
     """
-    def __init__(self, logdir, max_queue=10, flush_secs=120, filename_suffix=None):
+    def __init__(self, logdir, max_queue=10, flush_secs=120, filename_suffix=None, verbose=True):
         """
         Creates a `SummaryWriter` and an event file.
         On construction the summary writer creates a new event file in `logdir`.
@@ -218,9 +220,12 @@ class SummaryWriter(object):
                 How often, in seconds, to flush the pending events and summaries to disk.
             filename_suffix : str
                 Every event file's name is suffixed with `filename_suffix` if provided.
+            verbose: bool
+                Determines whether to print the logging messages.
         """
         self._file_writer = FileWriter(logdir=logdir, max_queue=max_queue,
-                                       flush_secs=flush_secs, filename_suffix=filename_suffix)
+                                       flush_secs=flush_secs, filename_suffix=filename_suffix,
+                                       verbose=verbose)
         self._default_bins = None
         self._text_tags = []
 
