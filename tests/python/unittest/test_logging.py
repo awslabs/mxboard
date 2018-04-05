@@ -30,7 +30,9 @@ import mxnet as mx
 from common import with_seed, setup_module
 
 # DO NOT CHANGE THESE NAMES AS THEY FOLLOW THE DEFINITIONS IN TENSORBOARD
-_LOGDIR = './logs_for_tensorboard'
+from nose.tools import make_decorator
+
+_LOGDIR = './logs_for_mxboard'
 _METADATA_TSV = 'metadata.tsv'
 _SPRITE_PNG = 'sprite.png'
 _PROJECTOR_CONFIG_PBTXT = 'projector_config.pbtxt'
@@ -59,12 +61,25 @@ def safe_remove_file(file_path):
             raise OSError('failed to remove file at {}'.format(file_path))
 
 
-def remove_logdir():
+def _remove_logdir_impl():
     if dir_exists(_LOGDIR):
         try:
             shutil.rmtree(_LOGDIR)
         except:
             raise OSError('failed to remove dir {}'.format(_LOGDIR))
+
+
+def remove_logdir():
+    def test_helper(orig_test):
+        @make_decorator(orig_test)
+        def test_new(*args, **kwargs):
+            _remove_logdir_impl()
+            try:
+                orig_test(*args, **kwargs)
+            except:
+                raise
+        return test_new
+    return test_helper
 
 
 def safe_remove_dir(dir_path):
@@ -120,6 +135,8 @@ def test_make_metadata_tsv():
     safe_remove_logdir()
 
 
+@remove_logdir()
+@remove_logdir()
 @with_seed()
 def test_make_image_grid():
     def test_2d_input():
@@ -185,6 +202,7 @@ def test_make_image_grid():
     test_4d_multiple_batch_input()
 
 
+@remove_logdir()
 def test_make_sprite_image():
     dtypes = [np.uint8, np.float32, np.float64]
     ndims = [2, 3, 4]
@@ -204,6 +222,7 @@ def test_make_sprite_image():
             safe_remove_logdir()
 
 
+@remove_logdir()
 def test_add_embedding_config():
     make_logdir()
     _add_embedding_config(_LOGDIR, str(10000), True, (4, 3, 5, 5))
@@ -213,6 +232,7 @@ def test_add_embedding_config():
     safe_remove_logdir()
 
 
+@remove_logdir()
 def test_save_ndarray_tsv():
     dtypes = [np.uint8, np.float32, np.float64]
     ndims = [2, 3, 4]
@@ -237,6 +257,7 @@ def check_event_file_and_remove_logdir():
     safe_remove_logdir()
 
 
+@remove_logdir()
 @with_seed()
 def test_add_scalar():
     sw = SummaryWriter(logdir=_LOGDIR)
@@ -245,34 +266,54 @@ def test_add_scalar():
     check_event_file_and_remove_logdir()
 
 
+@remove_logdir()
 @with_seed()
 def test_add_histogram():
+    def check_add_histogram(data):
+        sw = SummaryWriter(logdir=_LOGDIR)
+        sw.add_histogram(tag='test_add_histogram', values=data, global_step=0, bins=100)
+        sw.close()
+        check_event_file_and_remove_logdir()
+
     shape = rand_shape_nd(4)
-    sw = SummaryWriter(logdir=_LOGDIR)
-    sw.add_histogram(tag='test_add_histogram', values=mx.nd.random.normal(shape=shape), global_step=0, bins=100)
-    sw.close()
-    check_event_file_and_remove_logdir()
+    data = mx.nd.random.normal(shape=shape)
+    check_add_histogram(data)
+    check_add_histogram(data.asnumpy())
 
 
+@remove_logdir()
 @with_seed()
 def test_add_image():
+    def check_add_image(data):
+        sw = SummaryWriter(logdir=_LOGDIR)
+        sw.add_image(tag='test_add_image', image=data, global_step=0)
+        sw.close()
+        check_event_file_and_remove_logdir()
+
     shape = list(rand_shape_nd(4))
     shape[1] = 3
     shape = tuple(shape)
-    sw = SummaryWriter(logdir=_LOGDIR)
-    sw.add_image(tag='test_add_image', image=mx.nd.random.normal(shape=shape), global_step=0)
-    sw.close()
-    check_event_file_and_remove_logdir()
+    data = mx.nd.random.normal(shape=shape)
+    check_add_image(data)
+    check_add_image(data.asnumpy())
+    check_add_image(data.astype('uint8'))
+    check_add_image(data.astype('float16'))
+    check_add_image(data.astype('float64'))
 
 
+@remove_logdir()
 @with_seed()
 def test_add_audio():
+    def check_add_audio(data):
+        sw = SummaryWriter(logdir=_LOGDIR)
+        sw.add_audio(tag='test_add_audio', audio=data)
+        sw.close()
+        check_event_file_and_remove_logdir()
+
     shape = (100,)
     data = mx.nd.random.uniform(-1, 1, shape=shape)
-    sw = SummaryWriter(logdir=_LOGDIR)
-    sw.add_audio(tag='test_add_audio', audio=data)
-    sw.close()
-    check_event_file_and_remove_logdir()
+    check_add_audio(data)
+    check_add_audio(data.asnumpy())
 
 
 def check_and_remove_logdir_for_text():
@@ -296,6 +337,7 @@ def check_and_remove_logdir_for_text():
     safe_remove_logdir()
 
 
+@remove_logdir()
 def test_add_text():
     # this will generate an event file under _LOGDIR and
     # a json file called tensors.json under _LOGDIR/plugins/tensorboard_text/tensors.json
@@ -342,6 +384,7 @@ def check_and_remove_for_embedding(images=None, labels=None, global_step=None):
     safe_remove_logdir()
 
 
+@remove_logdir()
 @with_seed()
 def test_add_embedding():
     def check_add_embedding(embedding, images=None, labels=None, global_step=None):
@@ -357,23 +400,36 @@ def test_add_embedding():
     global_step = np.random.randint(low=0, high=999999)
 
     check_add_embedding(embedding, labels=labels, images=images, global_step=global_step)
+    check_add_embedding(embedding.asnumpy(), labels=labels, images=images, global_step=global_step)
+    check_add_embedding(embedding, labels=labels.asnumpy(), images=images, global_step=global_step)
+    check_add_embedding(embedding, labels=labels.asnumpy(), images=images.asnumpy(), global_step=global_step)
+    check_add_embedding(embedding, labels=labels.asnumpy().tolist(), images=images, global_step=global_step)
     check_add_embedding(embedding, images=images, global_step=global_step)
     check_add_embedding(embedding, labels=labels, global_step=global_step)
+    check_add_embedding(embedding, labels=labels.asnumpy(), global_step=global_step)
+    check_add_embedding(embedding, labels=labels.asnumpy().tolist(), global_step=global_step)
     check_add_embedding(embedding, global_step=global_step)
     check_add_embedding(embedding)
 
 
+@remove_logdir()
 @with_seed()
 def test_add_pr_curve():
+    def check_add_pr_curve(labels, predictions, num_thresholds):
+        with SummaryWriter(_LOGDIR) as sw:
+            sw.add_pr_curve(tag='test_add_pr_curve', labels=labels, predictions=predictions, num_thresholds=num_threshodls)
+        check_event_file_and_remove_logdir()
+
     shape = (100,)
     predictions = mx.nd.uniform(low=0.0, high=1.0, shape=shape)
     labels = mx.nd.uniform(low=0, high=2, shape=shape).astype('int32')
     num_threshodls = 100
-    with SummaryWriter(_LOGDIR) as sw:
-        sw.add_pr_curve(tag='test_add_pr_curve', labels=labels, predictions=predictions, num_thresholds=num_threshodls)
-    check_event_file_and_remove_logdir()
+    check_add_pr_curve(labels, predictions, num_threshodls)
+    check_add_pr_curve(labels.asnumpy(), predictions, num_threshodls)
+    check_add_pr_curve(labels.asnumpy(), predictions.asnumpy(), num_threshodls)
 
 
+@remove_logdir()
 def test_add_graph_symbol():
     data = mx.sym.Variable('data')
     conv = mx.sym.Convolution(data, kernel=(2, 2), num_filter=2)
@@ -404,6 +460,7 @@ def test_add_graph_symbol():
     check_event_file_and_remove_logdir()
 
 
+@remove_logdir()
 def test_add_graph_gluon():
     net = nn.HybridSequential()
     with net.name_scope():
@@ -450,6 +507,5 @@ def test_add_graph_gluon():
 
 
 if __name__ == '__main__':
-    remove_logdir()
     import nose
     nose.runmodule()

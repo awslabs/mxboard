@@ -40,6 +40,7 @@ except ImportError:
 
 from mxnet.ndarray import NDArray, op
 from mxnet.ndarray import ndarray as nd
+from mxnet.context import current_context
 
 
 def _make_numpy_array(x):
@@ -194,6 +195,8 @@ def _prepare_image(img, nrow=8, padding=2):
     https://github.com/tensorflow/tensorflow/blob/r1.6/tensorflow/python/summary/summary.py
     It returns an image with as `NDArray` with the color channel in the end of the dimensions.
     """
+    if isinstance(img, np.ndarray):
+        img = nd.array(img, dtype=img.dtype, ctx=current_context())
     assert img.ndim == 2 or img.ndim == 3 or img.ndim == 4
     if isinstance(img, NDArray):
         if img.dtype == np.uint8:
@@ -214,20 +217,21 @@ def _prepare_image(img, nrow=8, padding=2):
             raise ValueError('expected input image dtype is one of uint8, float16, float32, '
                              'and float64, received dtype {}'.format(str(img.dtype)))
     else:
-        raise TypeError('expected MXNet NDArray, while received type {}'.format(str(type(img))))
+        raise TypeError('expected MXNet NDArray or numpy.ndarray, '
+                        'while received type {}'.format(str(type(img))))
 
 
 def _make_metadata_tsv(metadata, save_path):
-    """Given an `NDArray` or a `numpy.ndarray` as metadata e.g. labels, save the flattened array
-    into the file metadata.tsv under the path provided by the user. Made to satisfy the requirement
-    in the following link:
+    """Given an `NDArray` or a `numpy.ndarray` or a 1D list as metadata e.g. labels, save the
+    flattened array into the file metadata.tsv under the path provided by the user.
+    Made to satisfy the requirement in the following link:
     https://www.tensorflow.org/programmers_guide/embedding#metadata"""
     if isinstance(metadata, NDArray):
         metadata = metadata.asnumpy().flatten()
     elif isinstance(metadata, np.ndarray):
         metadata = metadata.flatten()
-    else:
-        raise TypeError('expected NDArray of np.ndarray, while received '
+    elif not isinstance(metadata, list):
+        raise TypeError('expected NDArray or np.ndarray or 1D list, while received '
                         'type {}'.format(str(type(metadata))))
     metadata = [str(x) for x in metadata]
     with open(os.path.join(save_path, 'metadata.tsv'), 'w') as f:
@@ -240,6 +244,12 @@ def _make_sprite_image(images, save_path):
     defined in
     https://www.tensorflow.org/programmers_guide/embedding
     and save it in sprite.png under the path provided by the user."""
+    if isinstance(images, np.ndarray):
+        images = nd.array(images, dtype=images.dtype, ctx=current_context())
+    elif not isinstance(images, (NDArray, np.ndarray)):
+        raise TypeError('images must be an MXNet NDArray or numpy.ndarray,'
+                        ' while received type {}'.format(str(type(images))))
+
     assert isinstance(images, NDArray)
     shape = images.shape
     nrow = int(np.ceil(np.sqrt(shape[0])))
