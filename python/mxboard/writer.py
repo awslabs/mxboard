@@ -220,7 +220,7 @@ class SummaryWriter(object):
                 How often, in seconds, to flush the pending events and summaries to disk.
             filename_suffix : str
                 Every event file's name is suffixed with `filename_suffix` if provided.
-            verbose: bool
+            verbose : bool
                 Determines whether to print the logging messages.
         """
         self._file_writer = FileWriter(logdir=logdir, max_queue=max_queue,
