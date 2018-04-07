@@ -33,7 +33,7 @@ sc1 = mx.symbol.SliceChannel(data=fc2, num_outputs=10, name="slice_1", squeeze_a
 with SummaryWriter(logdir='./logs') as sw:
     sw.add_graph(sc1)
 ```
-![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_graph_symbol.png)
+![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_symbol.png)
 
 ### HybridBlock
 To visualize a Gluon model built using `HybridBlock`s, users must first call
@@ -63,7 +63,7 @@ net.forward(mx.nd.ones((1,)))
 with SummaryWriter(logdir='./logs') as sw:
     sw.add_graph(net)
 ```
-![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_graph_hybridblock.png)
+![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_hybridblock.png)
 
 Users can explore more sophisticated network structures provided by
 [MXNet Gluon Model Zoo](https://mxnet.incubator.apache.org/api/python/gluon/model_zoo.html?highlight=model_zoo#api-reference).
