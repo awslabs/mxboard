@@ -256,17 +256,23 @@ def _make_sprite_image(images, save_path):
     _save_image(images, os.path.join(save_path, 'sprite.png'), nrow=nrow, padding=0)
 
 
-def _add_embedding_config(file_path, global_step, has_metadata=False,
-                          label_img_shape=None, tag='default'):
+def _get_embedding_dir(tag, global_step=None):
+    if global_step is None:
+        return tag
+    else:
+        return tag + '_' + str(global_step).zfill(6)
+
+
+def _add_embedding_config(file_path, data_dir, has_metadata=False, label_img_shape=None):
     """Creates a config file used by the embedding projector.
     Adapted from the TensorFlow function `visualize_embeddings()` at
     https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/tensorboard/plugins/projector/__init__.py"""
     with open(os.path.join(file_path, 'projector_config.pbtxt'), 'a') as f:
         s = 'embeddings {\n'
-        s += 'tensor_name: "{}:{}"\n'.format(tag, global_step)
-        s += 'tensor_path: "{}"\n'.format(os.path.join(global_step, 'tensors.tsv'))
+        s += 'tensor_name: "{}"\n'.format(data_dir)
+        s += 'tensor_path: "{}"\n'.format(os.path.join(data_dir, 'tensors.tsv'))
         if has_metadata:
-            s += 'metadata_path: "{}"\n'.format(os.path.join(global_step, 'metadata.tsv'))
+            s += 'metadata_path: "{}"\n'.format(os.path.join(data_dir, 'metadata.tsv'))
         if label_img_shape is not None:
             if len(label_img_shape) != 4:
                 logging.warning('expected 4D sprite image in the format NCHW, while received image'
@@ -274,7 +280,7 @@ def _add_embedding_config(file_path, global_step, has_metadata=False,
                                 ' image info', len(label_img_shape))
             else:
                 s += 'sprite {\n'
-                s += 'image_path: "{}"\n'.format(os.path.join(global_step, 'sprite.png'))
+                s += 'image_path: "{}"\n'.format(os.path.join(data_dir, 'sprite.png'))
                 s += 'single_image_dim: {}\n'.format(label_img_shape[3])
                 s += 'single_image_dim: {}\n'.format(label_img_shape[2])
                 s += '}\n'

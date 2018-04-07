@@ -18,7 +18,7 @@
 import shutil
 from mxboard import SummaryWriter
 from mxboard.utils import _make_metadata_tsv, make_image_grid, _make_sprite_image
-from mxboard.utils import _add_embedding_config, _save_embedding_tsv
+from mxboard.utils import _add_embedding_config, _save_embedding_tsv, _get_embedding_dir
 from mxboard.summary import _get_nodes_from_symbol, _net2pb
 from mxboard.proto.node_def_pb2 import NodeDef
 from mxboard.proto.attr_value_pb2 import AttrValue
@@ -346,40 +346,38 @@ def test_add_text():
     check_and_remove_logdir_for_text()
 
 
-def check_and_remove_for_embedding(images=None, labels=None, global_step=None):
+def check_and_remove_for_embedding(tag, images=None, labels=None, global_step=None):
     """1. verify projector_config.pbtxt exists under _LOGDIR.
     2. verify folder str(global_step).zfill(5) exists under _LOGDIR.
     3. verify metadata.tsv exists under _LOGDIR/str(global_step).zfill(5).
     4. verify sprinte.png exists under _LOGDIR/str(global_step).zfill(5).
     5. verify tensors.tsv exists under _LOGDIR/str(global_step).zfill(5).
     6. remove all of them and _LOGDIR."""
-    if global_step is None:
-        global_step = 0
     # step 1
     projector_file_path = os.path.join(_LOGDIR, _PROJECTOR_CONFIG_PBTXT)
     assert file_exists(projector_file_path)
 
     # embedding tensor must exist
-    global_step_dir_path = os.path.join(_LOGDIR, str(global_step).zfill(5))
-    assert dir_exists(global_step_dir_path)
-    tensors_tsv_path = os.path.join(global_step_dir_path, _TENSORS_TSV)
+    data_dir = os.path.join(_LOGDIR, _get_embedding_dir(tag, global_step))
+    assert dir_exists(data_dir)
+    tensors_tsv_path = os.path.join(data_dir, _TENSORS_TSV)
     assert file_exists(tensors_tsv_path)
 
     metadata_tsv_path = None
     if labels is not None:  # has labels, metadata.tsv must exist
-        metadata_tsv_path = os.path.join(global_step_dir_path, _METADATA_TSV)
+        metadata_tsv_path = os.path.join(data_dir, _METADATA_TSV)
         assert file_exists(metadata_tsv_path)
 
     sprite_png_path = None
     if images is not None:  # has images, sprite image must exist
-        sprite_png_path = os.path.join(global_step_dir_path, _SPRITE_PNG)
+        sprite_png_path = os.path.join(data_dir, _SPRITE_PNG)
         assert file_exists(sprite_png_path)
 
     safe_remove_file(projector_file_path)
     safe_remove_file(metadata_tsv_path)
     safe_remove_file(sprite_png_path)
     safe_remove_file(tensors_tsv_path)
-    safe_remove_dir(global_step_dir_path)
+    safe_remove_dir(data_dir)
     safe_remove_logdir()
 
 
@@ -390,7 +388,8 @@ def test_add_embedding():
         with SummaryWriter(logdir=_LOGDIR) as sw:
             sw.add_embedding(tag='test_add_embedding', embedding=embedding, labels=labels,
                              images=images, global_step=global_step)
-        check_and_remove_for_embedding(images=images, labels=labels, global_step=global_step)
+        check_and_remove_for_embedding('test_add_embedding', images=images,
+                                       labels=labels, global_step=global_step)
 
     batch_size = 10
     embedding = mx.nd.uniform(shape=(batch_size, 20))
