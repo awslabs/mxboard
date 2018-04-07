@@ -31,7 +31,7 @@ from .event_file_writer import EventFileWriter
 from .summary import scalar_summary, histogram_summary, image_summary, audio_summary
 from .summary import text_summary, pr_curve_summary, _net2pb
 from .utils import _save_embedding_tsv, _make_sprite_image, _make_metadata_tsv
-from .utils import _add_embedding_config, _make_numpy_array
+from .utils import _add_embedding_config, _make_numpy_array, _get_embedding_dir
 
 
 class SummaryToEventTransformer(object):
@@ -226,6 +226,7 @@ class SummaryWriter(object):
         self._file_writer = FileWriter(logdir=logdir, max_queue=max_queue,
                                        flush_secs=flush_secs, filename_suffix=filename_suffix,
                                        verbose=verbose)
+        self._verbose = verbose
         self._default_bins = None
         self._text_tags = []
 
@@ -383,7 +384,12 @@ class SummaryWriter(object):
 
     def add_embedding(self, tag, embedding, labels=None, images=None, global_step=None):
         """Adds embedding projector data to the event file. It will also create a config file
-        used by the embedding projector in TensorBoard.
+        used by the embedding projector in TensorBoard. The folder containing the embedding
+        data is named using the formula:
+        If global_step is None, the folder name is `tag + '_' + str(global_step).zfill(6)`;
+        else, the folder name is `tag`.
+        For example, tag = 'mnist', global_step = 12, the folder's name is 'mnist_000012';
+        when global_step = None, the folder's name is 'mnist'.
         See the following reference for the meanings of labels and images.
         Ref: https://www.tensorflow.org/versions/r1.2/get_started/embedding_viz
 
@@ -403,24 +409,26 @@ class SummaryWriter(object):
             images : MXNet `NDArray` or `numpy.ndarray`
                 Images of format NCHW corresponding to the data points in the `embedding`.
             global_step : int
-                Global step value to record.
+                Global step value to record. If not set, default to zero.
         """
         embedding_shape = embedding.shape
         if len(embedding_shape) != 2:
             raise ValueError('expected 2D NDArray as embedding data, while received an array with'
                              ' ndim=%d' % len(embedding_shape))
-        if global_step is None:
-            global_step = 0
-        save_path = os.path.join(self.get_logdir(), str(global_step).zfill(5))
+        data_dir = _get_embedding_dir(tag, global_step)
+        save_path = os.path.join(self.get_logdir(), data_dir)
         try:
             os.makedirs(save_path)
         except OSError:
-            logging.warning('embedding dir exists, did you set global_step for add_embedding()?')
+            logging.warning('embedding dir %s exists, files under this dir will be overwritten',
+                            save_path)
         if labels is not None:
             if embedding_shape[0] != len(labels):
                 raise ValueError('expected equal values of embedding first dim and length of '
                                  'labels, while received %d and %d for each'
                                  % (embedding_shape[0], len(labels)))
+            if self._verbose:
+                logging.info('saving embedding labels to %s', save_path)
             _make_metadata_tsv(labels, save_path)
         if images is not None:
             img_labels_shape = images.shape
@@ -428,10 +436,14 @@ class SummaryWriter(object):
                 raise ValueError('expected equal first dim size of embedding and images,'
                                  ' while received %d and %d for each' % (embedding_shape[0],
                                                                          img_labels_shape[0]))
+            if self._verbose:
+                logging.info('saving embedding images to %s', save_path)
             _make_sprite_image(images, save_path)
+        if self._verbose:
+            logging.info('saving embedding data to %s', save_path)
         _save_embedding_tsv(embedding, save_path)
-        _add_embedding_config(self.get_logdir(), str(global_step).zfill(5), labels is not None,
-                              images.shape if images is not None else None, tag)
+        _add_embedding_config(self.get_logdir(), data_dir, labels is not None,
+                              images.shape if images is not None else None)
 
     def add_pr_curve(self, tag, labels, predictions, num_thresholds,
                      global_step=None, weights=None):

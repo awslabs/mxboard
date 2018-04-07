@@ -33,7 +33,7 @@ sc1 = mx.symbol.SliceChannel(data=fc2, num_outputs=10, name="slice_1", squeeze_a
 with SummaryWriter(logdir='./logs') as sw:
     sw.add_graph(sc1)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_symbol.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_graph_symbol.png)
 
 ### HybridBlock
 To visualize a Gluon model built using `HybridBlock`s, users must first call
@@ -63,7 +63,7 @@ net.forward(mx.nd.ones((1,)))
 with SummaryWriter(logdir='./logs') as sw:
     sw.add_graph(net)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_graph_hybridblock.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_graph_hybridblock.png)
 
 Users can explore more sophisticated network structures provided by
 [MXNet Gluon Model Zoo](https://mxnet.incubator.apache.org/api/python/gluon/model_zoo.html?highlight=model_zoo#api-reference).
@@ -97,7 +97,7 @@ with SummaryWriter(logdir='./logs') as sw:
     for x, y in zip(x_vals, y_vals):
         sw.add_scalar(tag='sin_function_curve', value=y, global_step=x * 100)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_scalar_sin.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_scalar_sin.png)
 
 
 ## Histogram
@@ -114,7 +114,7 @@ with SummaryWriter(logdir='./logs') as sw:
         data = mx.nd.normal(loc=0, scale=10.0/(i+1), shape=(10, 3, 8, 8))
         sw.add_histogram(tag='norml_dist', values=data, bins=200, global_step=i)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_histogram_norm.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_histogram_norm.png)
 
 
 ## Image
@@ -146,7 +146,7 @@ with SummaryWriter(logdir='./logs') as sw:
     # write batched faces to the event file
     sw.add_image(tag='faces', image=img)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_image_faces.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_image_faces.png)
 
 
 ## Embedding
@@ -195,7 +195,7 @@ for i, (data, label) in enumerate(train_data):
 with SummaryWriter(logdir='./logs') as sw:
     sw.add_embedding(tag='mnist', embedding=embedding, labels=labels, images=images)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_embedding_mnist.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_embedding_mnist.png)
 
 
 ## Audio
@@ -215,7 +215,7 @@ data = data / max_abs_val
 with SummaryWriter(logdir='./logs') as sw:
     sw.add_audio(tag='uniform_audio', audio=data, global_step=0)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_audio_uniform.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_audio_uniform.png)
 
 
 ## Text
@@ -241,7 +241,7 @@ with SummaryWriter(logdir='./logs') as sw:
     simple_example(sw, 100)
     markdown_table(sw)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_text.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_text.png)
 
 
 ## PR Curve
@@ -260,4 +260,4 @@ with SummaryWriter(logdir='./logs') as sw:
     labels = mx.nd.uniform(low=0, high=2, shape=(100,), dtype=np.float32).astype(np.int32)
     sw.add_pr_curve(tag='pseudo_pr_curve', predictions=predictions, labels=labels, num_thresholds=120)
 ```
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_pr_curve_uniform.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_pr_curve_uniform.png)

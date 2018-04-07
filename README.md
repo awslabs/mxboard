@@ -126,7 +126,7 @@ may fail. You may choose a different available port number.
 
 In the browser, enter the address `127.0.0.1:8888`, and click the tab **HISTOGRAMS**
 in the TensorBoard GUI. You will see data distribution changing as time progresses.
-![png](https://github.com/reminisce/web-data/blob/tensorboard_doc/mxnet/tensorboard/doc/summary_histogram_norm.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_histogram_norm.png)
 
 ## More tutorials
 - [Logging various data types](https://github.com/awslabs/mxboard/blob/master/demo.md)
