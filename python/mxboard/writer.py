@@ -386,7 +386,7 @@ class SummaryWriter(object):
         """Adds embedding projector data to the event file. It will also create a config file
         used by the embedding projector in TensorBoard. The folder containing the embedding
         data is named using the formula:
-        If global_step is None, the folder name is `tag + '_' + str(global_step).zfill(6)`;
+        If global_step is not None, the folder name is `tag + '_' + str(global_step).zfill(6)`;
         else, the folder name is `tag`.
         For example, tag = 'mnist', global_step = 12, the folder's name is 'mnist_000012';
         when global_step = None, the folder's name is 'mnist'.
