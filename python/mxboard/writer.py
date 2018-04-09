@@ -450,7 +450,7 @@ class SummaryWriter(object):
                      global_step=None, weights=None):
         """Adds precision-recall curve.
 
-        Note: This function internally calls `asnumpy()` MXNet `NDArray` inputs.
+        Note: This function internally calls `asnumpy()` for MXNet `NDArray` inputs.
         Since `asnumpy()` is a blocking function call, this function would block the main
         thread till it returns. It may consequently affect the performance of async execution
         of the MXNet engine.
