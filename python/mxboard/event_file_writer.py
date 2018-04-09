@@ -37,6 +37,7 @@ class EventsWriter(object):
     """Writes `Event` protocol buffers to an event file. This class is ported from
     EventsWriter defined in
     https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/util/events_writer.cc"""
+
     def __init__(self, file_prefix, verbose=True):
         """
         Events files have a name of the form
@@ -58,7 +59,7 @@ class EventsWriter(object):
     def _init_if_needed(self):
         if self._recordio_writer is not None:
             return
-        self._filename = self._file_prefix + ".out.tfevents." + str(time.time())[:10] \
+        self._filename = self._file_prefix + ".out.tfevents." + str(time.time())[:10]\
                          + "." + socket.gethostname() + self._file_suffix
         self._recordio_writer = RecordWriter(self._filename)
         if self._logger is not None:

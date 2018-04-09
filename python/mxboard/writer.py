@@ -432,7 +432,7 @@ class SummaryWriter(object):
                                  'labels, while received %d and %d for each'
                                  % (embedding_shape[0], len(labels)))
             if self._logger is not None:
-                self._logger.info('saving embedding labels to %s', save_path)
+                self._logger.info('saved embedding labels to %s', save_path)
             _make_metadata_tsv(labels, save_path)
         if images is not None:
             img_labels_shape = images.shape
@@ -441,10 +441,10 @@ class SummaryWriter(object):
                                  ' while received %d and %d for each' % (embedding_shape[0],
                                                                          img_labels_shape[0]))
             if self._logger is not None:
-                self._logger.info('saving embedding images to %s', save_path)
+                self._logger.info('saved embedding images to %s', save_path)
             _make_sprite_image(images, save_path)
         if self._logger is not None:
-            self._logger.info('saving embedding data to %s', save_path)
+            self._logger.info('saved embedding data to %s', save_path)
         _save_embedding_tsv(embedding, save_path)
         _add_embedding_config(self.get_logdir(), data_dir, labels is not None,
                               images.shape if images is not None else None)
