@@ -314,7 +314,7 @@ class SummaryWriter(object):
 
         Note: This function requires the ``pillow`` package.
 
-        Note: This function internally calls `asnumpy()` if `values` is an MXNet NDArray.
+        Note: This function internally calls `asnumpy()` for MXNet `NDArray` inputs.
         Since `asnumpy()` is a blocking function call, this function would block the main
         thread till it returns. It may consequently affect the performance of async execution
         of the MXNet engine.
@@ -341,7 +341,8 @@ class SummaryWriter(object):
 
     def add_audio(self, tag, audio, sample_rate=44100, global_step=None):
         """Add audio data to the event file.
-        Note: This function internally calls `asnumpy()` if `values` is an MXNet NDArray.
+
+        Note: This function internally calls `asnumpy()` for MXNet `NDArray` inputs.
         Since `asnumpy()` is a blocking function call, this function would block the main
         thread till it returns. It may consequently affect the performance of async execution
         of the MXNet engine.
@@ -393,7 +394,7 @@ class SummaryWriter(object):
         See the following reference for the meanings of labels and images.
         Ref: https://www.tensorflow.org/versions/r1.2/get_started/embedding_viz
 
-        Note: This function internally calls `asnumpy()` if `values` is an MXNet NDArray.
+        Note: This function internally calls `asnumpy()` for MXNet `NDArray` inputs.
         Since `asnumpy()` is a blocking function call, this function would block the main
         thread till it returns. It may consequently affect the performance of async execution
         of the MXNet engine.
@@ -449,7 +450,7 @@ class SummaryWriter(object):
                      global_step=None, weights=None):
         """Adds precision-recall curve.
 
-        Note: This function internally calls `asnumpy()` if `values` is an MXNet NDArray.
+        Note: This function internally calls `asnumpy()` MXNet `NDArray` inputs.
         Since `asnumpy()` is a blocking function call, this function would block the main
         thread till it returns. It may consequently affect the performance of async execution
         of the MXNet engine.
