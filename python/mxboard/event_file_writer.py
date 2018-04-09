@@ -47,7 +47,10 @@ class EventsWriter(object):
         self._filename = None
         self._recordio_writer = None
         self._num_outstanding_events = 0
-        self._verbose = verbose
+        self._logger = None
+        if verbose:
+            self._logger = logging.getLogger(__name__)
+            self._logger.setLevel(logging.INFO)
 
     def __del__(self):
         self.close()
@@ -58,9 +61,8 @@ class EventsWriter(object):
         self._filename = self._file_prefix + ".out.tfevents." + str(time.time())[:10] \
                          + "." + socket.gethostname() + self._file_suffix
         self._recordio_writer = RecordWriter(self._filename)
-        logging.basicConfig(filename=self._filename)
-        if self._verbose:
-            logging.info('Successfully opened events file: %s', self._filename)
+        if self._logger is not None:
+            self._logger.info('successfully opened events file: %s', self._filename)
         event = event_pb2.Event()
         event.wall_time = time.time()
         self.write_event(event)
@@ -75,7 +77,7 @@ class EventsWriter(object):
         """Appends event to the file."""
         # Check if event is of type event_pb2.Event proto.
         if not isinstance(event, event_pb2.Event):
-            raise TypeError("Expected an event_pb2.Event proto, "
+            raise TypeError("expected an event_pb2.Event proto, "
                             " but got %s" % type(event))
         return self._write_serialized_event(event.SerializeToString())
 
@@ -90,11 +92,9 @@ class EventsWriter(object):
         if self._num_outstanding_events == 0 or self._recordio_writer is None:
             return
         self._recordio_writer.flush()
-        if self._verbose:
-            if self._num_outstanding_events != 1:
-                logging.info('Wrote %d events to disk', self._num_outstanding_events)
-            else:
-                logging.info('Wrote %d event to disk', self._num_outstanding_events)
+        if self._logger is not None:
+            self._logger.info('wrote %d %s to disk', self._num_outstanding_events,
+                              'event' if self._num_outstanding_events == 1 else 'events')
         self._num_outstanding_events = 0
 
     def close(self):

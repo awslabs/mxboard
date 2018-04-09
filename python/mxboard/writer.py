@@ -226,7 +226,10 @@ class SummaryWriter(object):
         self._file_writer = FileWriter(logdir=logdir, max_queue=max_queue,
                                        flush_secs=flush_secs, filename_suffix=filename_suffix,
                                        verbose=verbose)
-        self._verbose = verbose
+        self._logger = None
+        if verbose:
+            self._logger = logging.getLogger(__name__)
+            self._logger.setLevel(logging.INFO)
         self._default_bins = None
         self._text_tags = []
 
@@ -428,8 +431,8 @@ class SummaryWriter(object):
                 raise ValueError('expected equal values of embedding first dim and length of '
                                  'labels, while received %d and %d for each'
                                  % (embedding_shape[0], len(labels)))
-            if self._verbose:
-                logging.info('saving embedding labels to %s', save_path)
+            if self._logger is not None:
+                self._logger.info('saving embedding labels to %s', save_path)
             _make_metadata_tsv(labels, save_path)
         if images is not None:
             img_labels_shape = images.shape
@@ -437,11 +440,11 @@ class SummaryWriter(object):
                 raise ValueError('expected equal first dim size of embedding and images,'
                                  ' while received %d and %d for each' % (embedding_shape[0],
                                                                          img_labels_shape[0]))
-            if self._verbose:
-                logging.info('saving embedding images to %s', save_path)
+            if self._logger is not None:
+                self._logger.info('saving embedding images to %s', save_path)
             _make_sprite_image(images, save_path)
-        if self._verbose:
-            logging.info('saving embedding data to %s', save_path)
+        if self._logger is not None:
+            self._logger.info('saving embedding data to %s', save_path)
         _save_embedding_tsv(embedding, save_path)
         _add_embedding_config(self.get_logdir(), data_dir, labels is not None,
                               images.shape if images is not None else None)
