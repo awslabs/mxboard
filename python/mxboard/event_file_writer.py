@@ -37,7 +37,6 @@ class EventsWriter(object):
     """Writes `Event` protocol buffers to an event file. This class is ported from
     EventsWriter defined in
     https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/util/events_writer.cc"""
-
     def __init__(self, file_prefix, verbose=True):
         """
         Events files have a name of the form
