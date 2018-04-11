@@ -313,7 +313,7 @@ class SummaryWriter(object):
         and image will be replicated three times and concatenated along the channel axis.
         If the input image is 3D, it will be replicated three times and concatenated along
         the channel axis. If the input image is 4D, which is a batch images, all the
-        images will be spliced as a big square image for display.
+        images will be spliced as a sprite image for display.
 
         Note: This function requires the ``pillow`` package.
 
@@ -328,15 +328,12 @@ class SummaryWriter(object):
                 Name for the `image`.
             image : MXNet `NDArray` or `numpy.ndarray`
                 Image is one of the following formats: (H, W), (C, H, W), (N, C, H, W).
-                For float image data types, the values are normalized one image at a time to fit
-                in the range `[0, 255]`. 'uint8` values are unchanged. The following two
-                normalization algorithms are used for different conditions:
-                1. If the input values are all positive, they are rescaled so that the largest one
-                is 255.
-                2. If any input value is negative, the values are shifted so that the input value
-                0.0 is at 127.
-                They are then rescaled so that either the smallest value is 0, or the largest
-                one is 255.
+                If the input is a batch of images, a grid of images is made by stitching them
+                together.
+                If data type is float, values must be in range [0, 1], and then they are
+                rescaled to range [0, 255]. Note that this does not change the values of the
+                input `image`. A copy of the input `image` is created instead.
+                If data type is 'uint8`, values are unchanged.
             global_step : int
                 Global step value to record.
         """
