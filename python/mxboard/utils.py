@@ -123,7 +123,7 @@ def make_image_grid(tensor, nrow=8, padding=2, normalize=False, norm_range=None,
             if val_range is not None:
                 norm_ip(t, val_range[0], val_range[1])
             else:
-                norm_ip(t, t.min(), t.max())
+                norm_ip(t, t.min().asscalar(), t.max().asscalar())
 
         if scale_each is True:
             for t in tensor:  # loop over mini-batch dimension
@@ -185,40 +185,32 @@ def _save_image(image, filename, nrow=8, padding=2):
 def _prepare_image(img, nrow=8, padding=2):
     """Given an image of format HW, CHW, or NCHW, returns a image of format HWC.
     If the input is a batch of images, a grid of images is made by stitching them together.
-    For float input data types, the values are normalized one image at a time to fit in the range
-    `[0, 255]`. 'uint8` values are unchanged. The following two normalization algorithms are used
-    for different conditions:
-    1. If the input values are all positive, they are rescaled so that the largest one is 255.
-    2. If any input value is negative, the values are shifted so that the input value 0.0 is at 127.
-    They are then rescaled so that either the smallest value is 0, or the largest one is 255.
-    This logic is adapted from the `image()` function in
-    https://github.com/tensorflow/tensorflow/blob/r1.6/tensorflow/python/summary/summary.py
-    It returns an image with as `NDArray` with the color channel in the end of the dimensions.
+    If data type is float, values must be in the range [0, 1], and then they are rescaled to
+    range [0, 255]. If data type is 'uint8`, values are unchanged.
     """
     if isinstance(img, np.ndarray):
         img = nd.array(img, dtype=img.dtype, ctx=current_context())
-    assert img.ndim == 2 or img.ndim == 3 or img.ndim == 4
-    if isinstance(img, NDArray):
-        if img.dtype == np.uint8:
-            return make_image_grid(img, nrow=nrow, padding=padding).transpose((1, 2, 0))
-        elif img.dtype == np.float16 or img.dtype == np.float32 or img.dtype == np.float64:
-            min_val = img.min().asscalar()
-            max_val = img.max().asscalar()
-            if min_val >= 0:
-                min_val = 0.0
-            else:
-                min_val += 127.0
-                max_val += 127.0
-                img = img + 127.0
-            return (make_image_grid(img, nrow=nrow, padding=padding, normalize=True,
-                                    norm_range=(min_val, max_val),
-                                    scale_each=True) * 255.0).astype(np.uint8).transpose((1, 2, 0))
-        else:
-            raise ValueError('expected input image dtype is one of uint8, float16, float32, '
-                             'and float64, received dtype {}'.format(str(img.dtype)))
-    else:
+    if not isinstance(img, NDArray):
         raise TypeError('expected MXNet NDArray or numpy.ndarray, '
                         'while received type {}'.format(str(type(img))))
+    assert img.ndim == 2 or img.ndim == 3 or img.ndim == 4
+
+    if img.dtype == np.uint8:
+        return make_image_grid(img, nrow=nrow, padding=padding).transpose((1, 2, 0))
+    elif img.dtype == np.float32 or img.dtype == np.float64:
+        min_val = img.min().asscalar()
+        max_val = img.max().asscalar()
+        if min_val < 0.0:
+            raise ValueError('expected non-negative min value from img, '
+                             'while received {}'.format(min_val))
+        if max_val > 1.0:
+            raise ValueError('expected max value from img not greater than 1, '
+                             'while received {}'.format(max_val))
+        img = make_image_grid(img, nrow=nrow, padding=padding) * 255.0
+        return img.astype(np.uint8).transpose((1, 2, 0))
+    else:
+        raise ValueError('expected input image dtype is one of uint8, float32, '
+                         'and float64, received dtype {}'.format(str(img.dtype)))
 
 
 def _make_metadata_tsv(metadata, save_path):

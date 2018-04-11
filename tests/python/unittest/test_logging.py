@@ -212,7 +212,7 @@ def test_make_sprite_image():
                 shape_list[0] = 3
             elif ndim == 4:
                 shape_list[1] = 3
-            data = rand_ndarray(tuple(shape_list), 'default', dtype=dtype)
+            data = rand_ndarray(tuple(shape_list), 'default', dtype=dtype).clip(0, 1)
             make_logdir()
             _make_sprite_image(data, _LOGDIR)
             file_path = os.path.join(_LOGDIR, _SPRITE_PNG)
@@ -292,12 +292,11 @@ def test_add_image():
     shape = list(rand_shape_nd(4))
     shape[1] = 3
     shape = tuple(shape)
-    data = mx.nd.random.normal(shape=shape)
+    data = mx.nd.random.normal(shape=shape).clip(0, 1)
     check_add_image(data)
     check_add_image(data.asnumpy())
-    check_add_image(data.astype('uint8'))
-    check_add_image(data.astype('float16'))
     check_add_image(data.astype('float64'))
+    check_add_image((data * 255).astype('uint8'))
 
 
 @remove_logdir()
