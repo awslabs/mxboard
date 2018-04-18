@@ -124,7 +124,7 @@ in the TensorBoard GUI. You will see data distribution changing as time progress
 
 ## More tutorials
 - [Quick start for logging data of various types](https://github.com/awslabs/mxboard/blob/master/demo.md)
-- [Monitoring training an MNIST model with MXBoard](https://github.com/awslabs/mxboard/blob/master/examples/mnist/train_mnist_mxboard.py)
+- [Monitoring training an MNIST model with MXBoard](https://github.com/awslabs/mxboard/blob/master/examples/mnist)
 - [Visualizing filters of ConvNets](https://github.com/reminisce/mxboard-demo#visualizing-filters-of-convnets)
 - [Visualizing ConvNet codes as embeddings](https://github.com/reminisce/mxboard-demo#visualizing-convnet-codes-as-embeddings)
 
