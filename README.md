@@ -93,7 +93,6 @@ The data is generated ten times with decreasing standard deviation and written t
 file each time. It's expected to see the data distribution gradually become more centered around
 the mean value. Note that here we specify creating the event file in the folder `logs`
 under the current directory. We will need to pass this folder path to the TensorBoard binary.
-
 ```python
 import mxnet as mx
 from mxboard import SummaryWriter
@@ -106,9 +105,9 @@ with SummaryWriter(logdir='./logs') as sw:
         sw.add_histogram(tag='norml_dist', values=data, bins=200, global_step=i)
 ```
 
-**Step 2.** Run TensorBoard on the event logs.
-Use the following command to start the TensorBoard server. It will use the logs that were generated in the current directory's `logs` folder.
+**Step 2.** Launch TensorBoard to load the event file generated above.
 
+Use the following command to start the TensorBoard server. It will use the logs that were generated in the current directory's `logs` folder.
 ```bash
 tensorboard --logdir=./logs --host=127.0.0.1 --port=8888
 ```
