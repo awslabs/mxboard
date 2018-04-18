@@ -24,7 +24,7 @@ is directly borrowed from
 MXBoard supports a set of Python APIs for logging the following data types
 for TensorBoard to render. Logging APIs for other languages may be added in the future.
 
-![mxboard_cover](https://github.com/reminisce/web-data/blob/add_mxboard_cover/mxnet/tensorboard/mxboard_cover.png)
+![mxboard_cover](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/mxboard_cover.png)
 
 The corresponding Python APIs are accessible through a class called `SummaryWriter` as follows:
 
