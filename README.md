@@ -21,16 +21,18 @@ The encoding algorithm used in writing protobuf objects into event files
 is directly borrowed from
 [TeamHG-Memex/tensorboard_logger](https://github.com/TeamHG-Memex/tensorboard_logger).
 
-MXBoard currently only supports a set of Python APIs for logging the following data types
-listed in the TensorBoard GUI. Logging APIs for other languages may be added in the future.
-- [GRAPHS](https://www.tensorflow.org/versions/r1.1/get_started/graph_viz)
-- SCALARS
-- IMAGES
-- [HISTOGRAMS](https://www.tensorflow.org/programmers_guide/tensorboard_histograms)
-- [PROJECTOR/EMBEDDING](https://www.tensorflow.org/programmers_guide/embedding)
-- AUDIO
-- TEXT
-- PR CURVES
+MXBoard supports a set of Python APIs for logging the following data types
+for TensorBoard to render. Logging APIs for other languages may be added in the future.
+[GRAPHS](https://www.tensorflow.org/versions/r1.1/get_started/graph_viz),
+SCALARS,
+IMAGES,
+[HISTOGRAMS](https://www.tensorflow.org/programmers_guide/tensorboard_histograms),
+[PROJECTOR/EMBEDDING](https://www.tensorflow.org/programmers_guide/embedding),
+AUDIO,
+TEXT, and
+PR CURVES.
+
+![mxboard_cover](https://github.com/reminisce/web-data/blob/add_mxboard_cover/mxnet/tensorboard/mxboard_cover.png)
 
 The corresponding Python APIs are accessible through a class called `SummaryWriter` as follows:
 
@@ -126,11 +128,12 @@ may fail. You may choose a different available port number.
 
 In the browser, enter the address `127.0.0.1:8888`, and click the tab **HISTOGRAMS**
 in the TensorBoard GUI. You will see data distribution changing as time progresses.
-![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_histogram_norm.png)
+
+![summary_histogram_norm](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_histogram_norm.png)
 
 ## More tutorials
-- [Logging various data types](https://github.com/awslabs/mxboard/blob/master/demo.md)
-- [Training an MNIST model with MXBoard](https://github.com/awslabs/mxboard/blob/master/examples/mnist/train_mnist_mxboard.py)
+- [Quick start for logging data of various types](https://github.com/awslabs/mxboard/blob/master/demo.md)
+- [Monitoring training an MNIST model with MXBoard](https://github.com/awslabs/mxboard/blob/master/examples/mnist/train_mnist_mxboard.py)
 - [Visualizing filters of ConvNets](https://github.com/reminisce/mxboard-demo#visualizing-filters-of-convnets)
 - [Visualizing ConvNet codes as embeddings](https://github.com/reminisce/mxboard-demo#visualizing-convnet-codes-as-embeddings)
 

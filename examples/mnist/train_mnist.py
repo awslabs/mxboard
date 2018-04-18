@@ -46,7 +46,7 @@ opt = parser.parse_args()
 
 # define network
 
-net = nn.Sequential()
+net = nn.HybridSequential()
 with net.name_scope():
     net.add(nn.Dense(128, activation='relu'))
     net.add(nn.Dense(64, activation='relu'))
@@ -83,6 +83,7 @@ def test(ctx):
 def train(epochs, ctx):
     # Collect all parameters from net and its children, then initialize them.
     net.initialize(mx.init.Xavier(magnitude=2.24), ctx=ctx)
+    net.hybridize()
 
     # Trainer is for updating parameters with gradient.
     trainer = gluon.Trainer(net.collect_params(), 'sgd',
@@ -94,12 +95,10 @@ def train(epochs, ctx):
     params = net.collect_params()
     param_names = params.keys()
 
-    # define the number of bins for logging histograms
-    num_bins = 1000
-
     # define a summary writer that logs data and flushes to the file every 5 seconds
-    sw = SummaryWriter(logdir='logs', flush_secs=5)
+    sw = SummaryWriter(logdir='./logs', flush_secs=5)
 
+    global_step = 0
     for epoch in range(epochs):
         # reset data iterator and metric at begining of epoch.
         metric.reset()
@@ -112,6 +111,8 @@ def train(epochs, ctx):
             with autograd.record():
                 output = net(data)
                 L = loss(output, label)
+            sw.add_scalar(tag='cross_entropy', value=L.mean().asscalar(), global_step=global_step)
+            global_step += 1
             L.backward()
 
             # take a gradient step with batch_size equal to data.shape[0]
@@ -125,14 +126,16 @@ def train(epochs, ctx):
 
             # Log the first batch of images of each epoch
             if i == 0:
-                sw.add_image(('epoch%d_minibatch%d' % (epoch, i)),
-                             data.reshape((opt.batch_size, 1, 28, 28)), epoch)
+                sw.add_image('minist_first_minibatch', data.reshape((opt.batch_size, 1, 28, 28)), epoch)
+
+        if epoch == 0:
+            sw.add_graph(net)
 
         grads = [i.grad() for i in net.collect_params().values()]
         assert len(grads) == len(param_names)
         # logging the gradients of parameters for checking convergence
         for i, name in enumerate(param_names):
-            sw.add_histogram(tag=name, values=grads[i], global_step=epoch, bins=num_bins)
+            sw.add_histogram(tag=name, values=grads[i], global_step=epoch, bins=1000)
 
         name, acc = metric.get()
         print('[Epoch %d] Training: %s=%f' % (epoch, name, acc))
@@ -144,7 +147,6 @@ def train(epochs, ctx):
         print('[Epoch %d] Validation: %s=%f' % (epoch, name, val_acc))
         sw.add_scalar(tag='valid_acc', value=val_acc, global_step=epoch)
 
-    net.save_params('mnist.params')
     sw.close()
 
 
