@@ -25,26 +25,26 @@ MXBoard supports a set of Python APIs for logging the following data types
 for TensorBoard to render. Logging APIs for other languages may be added in the future.
 [GRAPHS](https://www.tensorflow.org/versions/r1.1/get_started/graph_viz),
 SCALARS,
-IMAGES,
 [HISTOGRAMS](https://www.tensorflow.org/programmers_guide/tensorboard_histograms),
-[PROJECTOR/EMBEDDING](https://www.tensorflow.org/programmers_guide/embedding),
-AUDIO,
-TEXT, and
-PR CURVES.
+[EMBEDDING](https://www.tensorflow.org/programmers_guide/embedding),
+IMAGES,
+TEXT,
+PR CURVES, and
+AUDIO.
 
 ![mxboard_cover](https://github.com/reminisce/web-data/blob/add_mxboard_cover/mxnet/tensorboard/mxboard_cover.png)
 
 The corresponding Python APIs are accessible through a class called `SummaryWriter` as follows:
 
 ```python
-    mxboard.SummaryWriter.add_audio
-    mxboard.SummaryWriter.add_embedding
     mxboard.SummaryWriter.add_graph
-    mxboard.SummaryWriter.add_histogram
-    mxboard.SummaryWriter.add_image
-    mxboard.SummaryWriter.add_pr_curve
     mxboard.SummaryWriter.add_scalar
+    mxboard.SummaryWriter.add_histogram
+    mxboard.SummaryWriter.add_embedding
+    mxboard.SummaryWriter.add_image
     mxboard.SummaryWriter.add_text
+    mxboard.SummaryWriter.add_pr_curve
+    mxboard.SummaryWriter.add_audio
 ```
 
 
