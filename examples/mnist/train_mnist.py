@@ -121,8 +121,8 @@ def train(epochs, ctx):
             metric.update([label], [output])
 
             if i % opt.log_interval == 0 and i > 0:
-                train_acc_name, train_acc = metric.get()
-                print('[Epoch %d Batch %d] Training: %s=%f' % (epoch, i, train_acc_name, train_acc))
+                name, train_acc = metric.get()
+                print('[Epoch %d Batch %d] Training: %s=%f' % (epoch, i, name, train_acc))
 
             # Log the first batch of images of each epoch
             if i == 0:

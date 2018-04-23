@@ -24,7 +24,6 @@ from __future__ import print_function
 import time
 import json
 import os
-import sys
 import logging
 from .proto import event_pb2
 from .proto import summary_pb2
@@ -270,7 +269,7 @@ class SummaryWriter(object):
         This allows users to store scalars in memory and dump them to a json file later."""
         if tag not in self._scalar_dict.keys():
             self._scalar_dict[tag] = []
-        self._scalar_dict[tag].append([timestamp, global_step, scalar_value])
+        self._scalar_dict[tag].append([timestamp, global_step, float(scalar_value)])
 
     def get_logdir(self):
         """Returns the logging directory associated with this `SummaryWriter`."""
@@ -567,14 +566,15 @@ class SummaryWriter(object):
 
     def flush(self):
         """Flushes pending events to the file."""
-        self._file_writer.flush()
+        for fw in self._all_writers.values():
+            fw.flush()
 
     def close(self):
         """Closes the event file for writing."""
         for fw in self._all_writers.values():
             fw.close()
-        #self._file_writer.close()
 
     def reopen(self):
         """Reopens the event file for writing."""
-        self._file_writer.reopen()
+        for fw in self._all_writers.values():
+            fw.reopen()
