@@ -283,15 +283,18 @@ class SummaryWriter(object):
             tag : str
                 Name for the scalar plot.
             value : float, tuple, list, or dict
-                If value is a float, the corresponding curve would have no name attached in the plot.
-                If value is a tuple or list, it must have two elements with the first one representing
-                the name of the value and the second one as the float value. The name of the value
-                will be attached to the corresponding curve in the plot. This is useful when users
-                want to draw multiple curves in the same plot. It internally calls `_add_scalars`.
-                If value is a dict, it's a mapping from strs to float values, with strs representing
-                the names of the float values. This is convenient when users want to log a collection
-                of float values with different names for visualizing them in the same plot without
-                repeatedly calling `add_scalar` for each value. It internally calls `_add_scalars`.
+                If value is a float, the corresponding curve would have no name attached in the
+                plot.
+                If value is a tuple or list, it must have two elements with the first one
+                representing the name of the value and the second one as the float value. The
+                name of the value will be attached to the corresponding curve in the plot. This
+                is useful when users want to draw multiple curves in the same plot. It internally
+                calls `_add_scalars`.
+                If value is a dict, it's a mapping from strs to float values, with strs
+                representing the names of the float values. This is convenient when users want
+                to log a collection of float values with different names for visualizing them in
+                the same plot without repeatedly calling `add_scalar` for each value. It internally
+                calls `_add_scalars`.
             global_step : int
                 Global step value to record.
 
@@ -316,12 +319,14 @@ class SummaryWriter(object):
         if isinstance(value, (tuple, list, dict)):
             if isinstance(value, (tuple, list)):
                 if len(value) != 2:
-                    raise ValueError('expected two elements in value, while received %d' % len(value))
+                    raise ValueError('expected two elements in value, while received %d'
+                                     % len(value))
                 value = {value[0]: value[1]}
             self._add_scalars(tag, value, global_step)
         else:
             self._file_writer.add_summary(scalar_summary(tag, value), global_step)
-            self._append_to_scalar_dict(self.get_logdir() + '/' + tag, value, global_step, time.time())
+            self._append_to_scalar_dict(self.get_logdir() + '/' + tag,
+                                        value, global_step, time.time())
 
     def _add_scalars(self, tag, scalar_dict, global_step=None):
         """Adds multiple scalars to summary. This enables drawing multiple curves in one plot.

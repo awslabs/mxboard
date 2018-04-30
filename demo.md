@@ -103,7 +103,7 @@ Please note that the `tag` parameter in the API is for differentiating plots.
 MXBoard allows users to draw multiple curves in the same plot by specifying the same `tag`
 and different scalar names for `value`s. The following example demonstrates logging
 five curves in the same plot named "curves" in TensorBoard. Each curve has a name
-attached except `y5`.
+attached except `y5`. It exports logged scalar values into a json file in the end.
 ```python
 import numpy as np
 from mxboard import SummaryWriter
