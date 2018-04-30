@@ -281,38 +281,59 @@ class SummaryWriter(object):
         Parameters
         ----------
             tag : str
-                Name for the `value`.
-            value : float
-                Value to be saved.
+                Name for the scalar plot.
+            value : float, tuple, list, or dict
+                If value is a float, the corresponding curve would have no name attached in the plot.
+                If value is a tuple or list, it must have two elements with the first one representing
+                the name of the value and the second one as the float value. The name of the value
+                will be attached to the corresponding curve in the plot. This is useful when users
+                want to draw multiple curves in the same plot. It internally calls `_add_scalars`.
+                If value is a dict, it's a mapping from strs to float values, with strs representing
+                the names of the float values. This is convenient when users want to log a collection
+                of float values with different names for visualizing them in the same plot without
+                repeatedly calling `add_scalar` for each value. It internally calls `_add_scalars`.
             global_step : int
                 Global step value to record.
-        """
-        self._file_writer.add_summary(scalar_summary(tag, value), global_step)
-        self._append_to_scalar_dict(self.get_logdir() + '/' + tag, value, global_step, time.time())
 
-    def add_scalars(self, tag, scalar_dict, global_step=None):
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from mxboard import SummaryWriter
+
+        >>> xs = np.arange(start=0, stop=2 * np.pi, step=0.01)
+        >>> y_sin = np.sin(xs)
+        >>> y_cos = np.cos(xs)
+        >>> y_exp_sin = np.exp(y_sin)
+        >>> y_exp_cos = np.exp(y_cos)
+        >>> y_sin2 = y_sin * y_sin
+        >>> with SummaryWriter(logdir='./logs') as sw:
+        >>>     for x, y1, y2, y3, y4, y5 in zip(xs, y_sin, y_cos, y_exp_sin, y_exp_cos, y_sin2):
+        >>>         sw.add_scalar('curves', {'sin': y1, 'cos': y2}, x * 100)
+        >>>         sw.add_scalar('curves', ('exp(sin)', y3), x * 100)
+        >>>         sw.add_scalar('curves', ['exp(cos)', y4], x * 100)
+        >>>         sw.add_scalar('curves', y5, x * 100)
+        """
+        if isinstance(value, (tuple, list, dict)):
+            if isinstance(value, (tuple, list)):
+                if len(value) != 2:
+                    raise ValueError('expected two elements in value, while received %d' % len(value))
+                value = {value[0]: value[1]}
+            self._add_scalars(tag, value, global_step)
+        else:
+            self._file_writer.add_summary(scalar_summary(tag, value), global_step)
+            self._append_to_scalar_dict(self.get_logdir() + '/' + tag, value, global_step, time.time())
+
+    def _add_scalars(self, tag, scalar_dict, global_step=None):
         """Adds multiple scalars to summary. This enables drawing multiple curves in one plot.
 
         Parameters
         ----------
             tag : str
                 Name for the plot.
-            scalar_dict :
-                Value to be saved.
+            scalar_dict : dict
+                Values to be saved.
             global_step : int
                 Global step value to record.
-
-        Examples
-        --------
-        import numpy as np
-        from mxboard import SummaryWriter
-
-        x_vals = np.arange(start=0, stop=2 * np.pi, step=0.01)
-        y_vals_sin = np.sin(x_vals)
-        y_vals_cos = np.cos(x_vals)
-        with SummaryWriter(logdir='./logs') as sw:
-            for x, y1, y2 in zip(x_vals, y_vals_sin, y_vals_cos):
-                sw.add_scalars('curves', {'sin': y1, 'cos': y2})
         """
         timestamp = time.time()
         fw_logdir = self._file_writer.get_logdir()
@@ -337,6 +358,10 @@ class SummaryWriter(object):
             logging.warning('%s already exists and will be overwritten by scalar dict', path)
         with open(path, "w") as f:
             json.dump(self._scalar_dict, f)
+
+    def clear_scalar_dict(self):
+        """Empties scalar dictionary."""
+        self._scalar_dict = {}
 
     def add_histogram(self, tag, values, global_step=None, bins='default'):
         """Add histogram data to the event file.
