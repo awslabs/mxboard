@@ -99,6 +99,32 @@ with SummaryWriter(logdir='./logs') as sw:
 ```
 ![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_scalar_sin.png)
 
+Please note that the `tag` parameter in the API is for differentiating plots.
+MXBoard allows users to draw multiple curves in the same plot by specifying the same `tag`
+and different scalar names for `value`s. The following example demonstrates logging
+five curves in the same plot named "curves" in TensorBoard. Each curve has a name
+attached except `y5`. It exports logged scalar values into a json file in the end.
+```python
+import numpy as np
+from mxboard import SummaryWriter
+
+xs = np.arange(start=0, stop=2 * np.pi, step=0.01)
+y_sin = np.sin(xs)
+y_cos = np.cos(xs)
+y_exp_sin = np.exp(y_sin)
+y_exp_cos = np.exp(y_cos)
+y_sin2 = y_sin * y_sin
+with SummaryWriter(logdir='./logs') as sw:
+    for x, y1, y2, y3, y4, y5 in zip(xs, y_sin, y_cos, y_exp_sin, y_exp_cos, y_sin2):
+        sw.add_scalar('curves', {'sin': y1, 'cos': y2}, x * 100)  # log y1 with name 'sin' and y2 with name 'cos'
+        sw.add_scalar('curves', ('exp(sin)', y3), x * 100)  # log y3 with name 'exp(sin)'
+        sw.add_scalar('curves', ['exp(cos)', y4], x * 100)  # log y4 with name 'exp(cos)'
+        sw.add_scalar('curves', y5, x * 100)  # log y5 without specifying scalar name
+
+    sw.export_scalars('scalars.json')
+```
+![png](https://github.com/reminisce/web-data/blob/mxboard_multiple_scalars/mxnet/tensorboard/doc/summary_scalars.png)
+
 
 ## Histogram
 We can visulize the value distributions of tensors by logging `NDArray`s in terms of histograms.

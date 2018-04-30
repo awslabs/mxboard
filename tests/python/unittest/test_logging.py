@@ -267,6 +267,34 @@ def test_add_scalar():
 
 @remove_logdir()
 @with_seed()
+def test_add_multiple_scalars():
+    sw = SummaryWriter(logdir=_LOGDIR)
+    sw.add_scalar(tag='test_multiple_scalars', value=np.random.uniform(), global_step=0)
+    sw.add_scalar(tag='test_multiple_scalars', value=('scalar1', np.random.uniform()), global_step=0)
+    sw.add_scalar(tag='test_multiple_scalars', value=['scalar2', np.random.uniform()], global_step=0)
+    sw.add_scalar(tag='test_multiple_scalars',
+                  value={'scalar3': np.random.uniform(), 'scalar4': np.random.uniform()},
+                  global_step=0)
+    items = os.listdir(_LOGDIR)
+    assert len(items) == 2
+    assert 'test_multiple_scalars' in items
+    items.remove('test_multiple_scalars')
+    assert items[0].startswith(_EVENT_FILE_PREFIX)
+    print(items[0])
+    assert file_exists(os.path.join(_LOGDIR, items[0]))
+
+    named_scalar_dir = os.path.join(_LOGDIR, 'test_multiple_scalars')
+    assert dir_exists(named_scalar_dir)
+    for i in range(1, 5):
+        sub_dir = os.path.join(named_scalar_dir, 'scalar%d' % i)
+        assert dir_exists(sub_dir)
+        sub_items = os.listdir(sub_dir)
+        assert len(sub_items) == 1
+        assert sub_items[0].startswith(_EVENT_FILE_PREFIX)
+
+
+@remove_logdir()
+@with_seed()
 def test_add_histogram():
     def check_add_histogram(data):
         sw = SummaryWriter(logdir=_LOGDIR)

@@ -226,12 +226,21 @@ class SummaryWriter(object):
         self._file_writer = FileWriter(logdir=logdir, max_queue=max_queue,
                                        flush_secs=flush_secs, filename_suffix=filename_suffix,
                                        verbose=verbose)
+        self._max_queue = max_queue
+        self._flush_secs = flush_secs
+        self._filename_suffix = filename_suffix
+        self._verbose = verbose
+        # for writing scalars of different tags in the same plot
+        self._all_writers = {self._file_writer.get_logdir(): self._file_writer}
         self._logger = None
         if verbose:
             self._logger = logging.getLogger(__name__)
             self._logger.setLevel(logging.INFO)
         self._default_bins = None
         self._text_tags = []
+        # scalar value dict.
+        # key: file_writer's logdir, value: list of [timestamp, global_step, value]
+        self._scalar_dict = {}
 
     def __enter__(self):
         return self
@@ -255,6 +264,13 @@ class SummaryWriter(object):
             self._default_bins = neg_buckets[::-1] + [0] + buckets
         return self._default_bins
 
+    def _append_to_scalar_dict(self, tag, scalar_value, global_step, timestamp):
+        """Adds a list [timestamp, step, value] to the value of `self._scalar_dict[tag]`.
+        This allows users to store scalars in memory and dump them to a json file later."""
+        if tag not in self._scalar_dict.keys():
+            self._scalar_dict[tag] = []
+        self._scalar_dict[tag].append([timestamp, global_step, float(scalar_value)])
+
     def get_logdir(self):
         """Returns the logging directory associated with this `SummaryWriter`."""
         return self._file_writer.get_logdir()
@@ -265,13 +281,92 @@ class SummaryWriter(object):
         Parameters
         ----------
             tag : str
-                Name for the `value`.
-            value : float
-                Value to be saved.
+                Name for the scalar plot.
+            value : float, tuple, list, or dict
+                If value is a float, the corresponding curve would have no name attached in the
+                plot.
+                If value is a tuple or list, it must have two elements with the first one
+                representing the name of the value and the second one as the float value. The
+                name of the value will be attached to the corresponding curve in the plot. This
+                is useful when users want to draw multiple curves in the same plot. It internally
+                calls `_add_scalars`.
+                If value is a dict, it's a mapping from strs to float values, with strs
+                representing the names of the float values. This is convenient when users want
+                to log a collection of float values with different names for visualizing them in
+                the same plot without repeatedly calling `add_scalar` for each value. It internally
+                calls `_add_scalars`.
+            global_step : int
+                Global step value to record.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from mxboard import SummaryWriter
+
+        >>> xs = np.arange(start=0, stop=2 * np.pi, step=0.01)
+        >>> y_sin = np.sin(xs)
+        >>> y_cos = np.cos(xs)
+        >>> y_exp_sin = np.exp(y_sin)
+        >>> y_exp_cos = np.exp(y_cos)
+        >>> y_sin2 = y_sin * y_sin
+        >>> with SummaryWriter(logdir='./logs') as sw:
+        >>>     for x, y1, y2, y3, y4, y5 in zip(xs, y_sin, y_cos, y_exp_sin, y_exp_cos, y_sin2):
+        >>>         sw.add_scalar('curves', {'sin': y1, 'cos': y2}, x * 100)
+        >>>         sw.add_scalar('curves', ('exp(sin)', y3), x * 100)
+        >>>         sw.add_scalar('curves', ['exp(cos)', y4], x * 100)
+        >>>         sw.add_scalar('curves', y5, x * 100)
+        """
+        if isinstance(value, (tuple, list, dict)):
+            if isinstance(value, (tuple, list)):
+                if len(value) != 2:
+                    raise ValueError('expected two elements in value, while received %d'
+                                     % len(value))
+                value = {value[0]: value[1]}
+            self._add_scalars(tag, value, global_step)
+        else:
+            self._file_writer.add_summary(scalar_summary(tag, value), global_step)
+            self._append_to_scalar_dict(self.get_logdir() + '/' + tag,
+                                        value, global_step, time.time())
+
+    def _add_scalars(self, tag, scalar_dict, global_step=None):
+        """Adds multiple scalars to summary. This enables drawing multiple curves in one plot.
+
+        Parameters
+        ----------
+            tag : str
+                Name for the plot.
+            scalar_dict : dict
+                Values to be saved.
             global_step : int
                 Global step value to record.
         """
-        self._file_writer.add_summary(scalar_summary(tag, value), global_step)
+        timestamp = time.time()
+        fw_logdir = self._file_writer.get_logdir()
+        for scalar_name, scalar_value in scalar_dict.items():
+            fw_tag = fw_logdir + '/' + tag + '/' + scalar_name
+            if fw_tag in self._all_writers.keys():
+                fw = self._all_writers[fw_tag]
+            else:
+                fw = FileWriter(logdir=fw_tag, max_queue=self._max_queue,
+                                flush_secs=self._flush_secs, filename_suffix=self._filename_suffix,
+                                verbose=self._verbose)
+                self._all_writers[fw_tag] = fw
+            fw.add_summary(scalar_summary(tag, scalar_value), global_step)
+            self._append_to_scalar_dict(fw_tag, scalar_value, global_step, timestamp)
+
+    def export_scalars(self, path):
+        """Exports to the given path an ASCII file containing all the scalars written
+        so far by this instance, with the following format:
+        {writer_id : [[timestamp, step, value], ...], ...}
+        """
+        if os.path.exists(path) and os.path.isfile(path):
+            logging.warning('%s already exists and will be overwritten by scalar dict', path)
+        with open(path, "w") as f:
+            json.dump(self._scalar_dict, f)
+
+    def clear_scalar_dict(self):
+        """Empties scalar dictionary."""
+        self._scalar_dict = {}
 
     def add_histogram(self, tag, values, global_step=None, bins='default'):
         """Add histogram data to the event file.
@@ -501,12 +596,15 @@ class SummaryWriter(object):
 
     def flush(self):
         """Flushes pending events to the file."""
-        self._file_writer.flush()
+        for fw in self._all_writers.values():
+            fw.flush()
 
     def close(self):
         """Closes the event file for writing."""
-        self._file_writer.close()
+        for fw in self._all_writers.values():
+            fw.close()
 
     def reopen(self):
         """Reopens the event file for writing."""
-        self._file_writer.reopen()
+        for fw in self._all_writers.values():
+            fw.reopen()
