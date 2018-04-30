@@ -140,14 +140,12 @@ def train(epochs, ctx):
         name, train_acc = metric.get()
         print('[Epoch %d] Training: %s=%f' % (epoch, name, train_acc))
         # logging training accuracy
+        sw.add_scalar(tag='accuracy_curves', value=('train_acc', train_acc), global_step=epoch)
 
         name, val_acc = test(ctx)
-        # logging the validation accuracy
         print('[Epoch %d] Validation: %s=%f' % (epoch, name, val_acc))
-
-        sw.add_scalars(tag='train_valid_curves',
-                       scalar_dict={'train_acc': train_acc, 'valid_acc': val_acc},
-                       global_step=epoch)
+        # logging the validation accuracy
+        sw.add_scalar(tag='accuracy_curves', value=('valid_acc', val_acc), global_step=epoch)
 
     sw.export_scalars('scalar_dict.json')
     sw.close()
