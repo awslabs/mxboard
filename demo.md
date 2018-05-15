@@ -123,7 +123,7 @@ with SummaryWriter(logdir='./logs') as sw:
 
     sw.export_scalars('scalars.json')
 ```
-![png](https://github.com/reminisce/web-data/blob/mxboard_multiple_scalars/mxnet/tensorboard/doc/summary_scalars.png)
+![png](https://github.com/dmlc/web-data/blob/master/mxnet/tensorboard/doc/summary_scalars.png)
 
 
 ## Histogram
