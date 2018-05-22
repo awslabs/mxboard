@@ -20,6 +20,7 @@ import sys
 import os
 import mxnet as mx
 from mxnet.test_utils import set_default_context
+from mxboard import SummaryWriter
 
 curr_path = os.path.dirname(os.path.abspath(os.path.expanduser(__file__)))
 sys.path.insert(0, os.path.join(curr_path, '../unittest'))
