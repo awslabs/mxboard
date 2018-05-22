@@ -52,6 +52,7 @@ setup(
     name='mxboard',
     version='0.1.0',
     description='A logging tool for visualizing MXNet data in TensorBoard',
+    long_description='MXBoard is a logging tool that enables visualization of MXNet data in TensorBoard.',
     author='Amazon Web Services',
     author_email='jwum@amazon.com',
     url='https://github.com/awslabs/mxboard',

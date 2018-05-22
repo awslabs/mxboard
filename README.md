@@ -81,6 +81,12 @@ MXBoard relies on the following packages for data logging.
 - [six](https://pypi.python.org/pypi/six)
 - [Pillow](https://pypi.python.org/pypi/Pillow)
 
+Please note that you need to install MXNet manually before using MXBoard.
+The other packages will be installed automatically when you install MXBoard
+via pip or building from source. If you want to build from source, please make sure
+that protobuf compiler is installed. Check [this page](https://github.com/google/protobuf/releases)
+for downloading the protobuf compiler whose file name starts with "protoc".
+
 
 ## Visualizing MXNet data in 30 seconds
 Now that you have installed all of the required packages, let's walk through a simple visualization example. You will see how
