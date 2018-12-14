@@ -32,6 +32,8 @@ import six
 from .proto import event_pb2
 from .record_writer import RecordWriter
 
+logging.basicConfig()
+
 
 class EventsWriter(object):
     """Writes `Event` protocol buffers to an event file. This class is ported from
