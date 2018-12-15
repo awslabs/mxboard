@@ -123,14 +123,29 @@ def logdir_empty():
 
 
 @with_seed()
-def test_make_metadata_tsv():
+def test_make_1D_metadata_tsv():
     make_logdir()
-    shape = rand_shape_nd(num_dim=4, dim=10)
+    shape = rand_shape_nd(num_dim=1, dim=10)
     data = rand_ndarray(shape=shape, stype='default')
     _make_metadata_tsv(data, _LOGDIR)
     file_path = os.path.join(_LOGDIR, 'metadata.tsv')
     data_loaded = np.loadtxt(file_path, dtype=data.dtype)
-    assert_almost_equal(data.asnumpy(), data_loaded.reshape(data.shape), rtol=0.001, atol=0.001)
+    assert_almost_equal(data.asnumpy(), data_loaded.reshape(
+        data.shape), rtol=0.001, atol=0.001)
+    safe_remove_file(file_path)
+    safe_remove_logdir()
+
+
+@with_seed()
+def test_make_2D_metadata_tsv():
+    make_logdir()
+    shape = rand_shape_nd(num_dim=2, dim=10)
+    data = rand_ndarray(shape=shape, stype='default')
+    _make_metadata_tsv(data, _LOGDIR)
+    file_path = os.path.join(_LOGDIR, 'metadata.tsv')
+    data_loaded = np.loadtxt(file_path, dtype=data.dtype)
+    assert_almost_equal(data.asnumpy(), data_loaded.reshape(
+        data.shape), rtol=0.001, atol=0.001)
     safe_remove_file(file_path)
     safe_remove_logdir()
 
@@ -500,11 +515,11 @@ def test_add_graph_gluon():
                       NodeDef(name='hybridsequential0_dense0_fwd/hybridsequential0_dense0_weight', op='null',
                               attr={'param': AttrValue(
                                   s='{ __dtype__ :  0 ,  __lr_mult__ :  1.0 ,  __shape__ :  '
-                                    '(128, 0) ,  __wd_mult__ :  1.0 }'.encode(encoding='utf-8'))}),
+                                    '(128, 0) ,  __storage_type__ :  0 ,  __wd_mult__ :  1.0 }'.encode(encoding='utf-8'))}),
                       NodeDef(name='hybridsequential0_dense0_fwd/hybridsequential0_dense0_bias', op='null',
                               attr={'param': AttrValue(
                                   s='{ __dtype__ :  0 ,  __init__ :  zeros ,  __lr_mult__ :  1.0 ,  __shape__ :  '
-                                    '(128,) ,  __wd_mult__ :  1.0 }'.encode(encoding='utf-8'))}),
+                                    '(128,) ,  __storage_type__ :  0 ,  __wd_mult__ :  1.0 }'.encode(encoding='utf-8'))}),
                       NodeDef(name='hybridsequential0_dense0_fwd/hybridsequential0_dense0_fwd', op='FullyConnected',
                               input=['data', 'hybridsequential0_dense0_fwd/hybridsequential0_dense0_weight',
                                      'hybridsequential0_dense0_fwd/hybridsequential0_dense0_bias'],

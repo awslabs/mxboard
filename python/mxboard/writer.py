@@ -32,6 +32,7 @@ from .summary import scalar_summary, histogram_summary, image_summary, audio_sum
 from .summary import text_summary, pr_curve_summary, _net2pb
 from .utils import _save_embedding_tsv, _make_sprite_image, _make_metadata_tsv
 from .utils import _add_embedding_config, _make_numpy_array, _get_embedding_dir
+from .utils import _is_2D_matrix
 
 
 class SummaryToEventTransformer(object):
@@ -501,7 +502,8 @@ class SummaryWriter(object):
             embedding : MXNet `NDArray` or  `numpy.ndarray`
                 A matrix whose each row is the feature vector of a data point.
             labels : MXNet `NDArray` or `numpy.ndarray` or a list of elements convertible to str.
-                Labels corresponding to the data points in the `embedding`.
+                Labels corresponding to the data points in the `embedding`. If the labels are 2D
+                the first row is considered the column names.
             images : MXNet `NDArray` or `numpy.ndarray`
                 Images of format NCHW corresponding to the data points in the `embedding`.
             global_step : int
@@ -519,9 +521,11 @@ class SummaryWriter(object):
             logging.warning('embedding dir %s exists, files under this dir will be overwritten',
                             save_path)
         if labels is not None:
-            if embedding_shape[0] != len(labels):
+            if (embedding_shape[0] != len(labels) and
+                    (not _is_2D_matrix(labels) or len(labels) != embedding_shape[0] + 1)):
                 raise ValueError('expected equal values of embedding first dim and length of '
-                                 'labels, while received %d and %d for each'
+                                 'labels or embedding first dim + 1 for 2d labels '
+                                 ', while received %d and %d for each'
                                  % (embedding_shape[0], len(labels)))
             if self._logger is not None:
                 self._logger.info('saved embedding labels to %s', save_path)

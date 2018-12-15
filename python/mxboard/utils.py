@@ -43,6 +43,21 @@ from mxnet.ndarray import ndarray as nd
 from mxnet.context import current_context
 
 
+def _rectangular(n):
+    """Checks to see if a 2D list is a valid 2D matrix"""
+    for i in n:
+        if len(i) != len(n[0]):
+            return False
+    return True
+
+
+def _is_2D_matrix(matrix):
+    """Checks to see if a ndarray is 2D or a list of lists is 2D"""
+    return ((isinstance(matrix[0], list) and _rectangular(matrix) and
+             not isinstance(matrix[0][0], list)) or
+            (not isinstance(matrix, list) and matrix.shape == 2))
+
+
 def _make_numpy_array(x):
     if isinstance(x, np.ndarray):
         return x
@@ -214,21 +229,28 @@ def _prepare_image(img, nrow=8, padding=2):
 
 
 def _make_metadata_tsv(metadata, save_path):
-    """Given an `NDArray` or a `numpy.ndarray` or a 1D list as metadata e.g. labels, save the
-    flattened array into the file metadata.tsv under the path provided by the user.
+    """Given an `NDArray` or a `numpy.ndarray` or a list as metadata e.g. labels, save the
+    flattened array into the file metadata.tsv under the path provided by the user. The
+    labels can be 1D or 2D with multiple labels per data point.
     Made to satisfy the requirement in the following link:
     https://www.tensorflow.org/programmers_guide/embedding#metadata"""
     if isinstance(metadata, NDArray):
-        metadata = metadata.asnumpy().flatten()
-    elif isinstance(metadata, np.ndarray):
-        metadata = metadata.flatten()
-    elif not isinstance(metadata, list):
-        raise TypeError('expected NDArray or np.ndarray or 1D list, while received '
+        metadata = metadata.asnumpy()
+    elif isinstance(metadata, list):
+        metadata = np.array(metadata)
+    elif not isinstance(metadata, np.ndarray):
+        raise TypeError('expected NDArray or np.ndarray or 1D/2D list, while received '
                         'type {}'.format(str(type(metadata))))
-    metadata = [str(x) for x in metadata]
+
+    if len(metadata.shape) > 2:
+        raise TypeError('expected a 1D/2D NDArray, np.ndarray or list, while received '
+                        'shape {}'.format(str(metadata.shape)))
+
+    if len(metadata.shape) == 1:
+        metadata = metadata.reshape(-1, 1)
     with open(os.path.join(save_path, 'metadata.tsv'), 'w') as f:
-        for x in metadata:
-            f.write(x + '\n')
+        for row in metadata:
+            f.write('\t'.join([str(x) for x in row]) + '\n')
 
 
 def _make_sprite_image(images, save_path):

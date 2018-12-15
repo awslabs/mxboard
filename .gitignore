@@ -1,5 +1,6 @@
 *.pyc
 .idea
+.vscode
 python/mxboard/proto/[a-z]*.py*
 python/build
 python/dist
