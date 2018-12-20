@@ -266,7 +266,7 @@ def text_summary(tag, text):
     tensor = TensorProto(dtype='DT_STRING',
                          string_val=[text.encode(encoding='utf_8')],
                          tensor_shape=TensorShapeProto(dim=[TensorShapeProto.Dim(size=1)]))
-    return Summary(value=[Summary.Value(node_name=tag, metadata=smd, tensor=tensor)])
+    return Summary(value=[Summary.Value(tag=tag, metadata=smd, tensor=tensor)])
 
 
 def pr_curve_summary(tag, labels, predictions, num_thresholds, weights=None):
