@@ -153,7 +153,7 @@ def make_image_grid(tensor, nrow=8, padding=2, normalize=False, norm_range=None,
     # make the batch of images into a grid
     nmaps = tensor.shape[0]
     xmaps = min(nrow, nmaps)
-    ymaps = int(np.ceil(float(nmaps) / xmaps))
+    ymaps = xmaps
     height, width = int(tensor.shape[2] + padding), int(tensor.shape[3] + padding)
     grid = nd.empty(shape=(3, height * ymaps + padding, width * xmaps + padding),
                     dtype=tensor.dtype, ctx=tensor.context)
