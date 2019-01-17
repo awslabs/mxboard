@@ -216,7 +216,8 @@ def _prepare_image(img, nrow=8, padding=2, square_image=False):
     assert img.ndim == 2 or img.ndim == 3 or img.ndim == 4
 
     if img.dtype == np.uint8:
-        return make_image_grid(img, nrow=nrow, padding=padding, square_image=square_image).transpose((1, 2, 0))
+        return make_image_grid(
+            img, nrow=nrow, padding=padding, square_image=square_image).transpose((1, 2, 0))
     elif img.dtype == np.float32 or img.dtype == np.float64:
         min_val = img.min().asscalar()
         max_val = img.max().asscalar()
@@ -272,7 +273,8 @@ def _make_sprite_image(images, save_path):
     assert isinstance(images, NDArray)
     shape = images.shape
     nrow = int(np.ceil(np.sqrt(shape[0])))
-    _save_image(images, os.path.join(save_path, 'sprite.png'), nrow=nrow, padding=0, square_image=True)
+    _save_image(
+        images, os.path.join(save_path, 'sprite.png'), nrow=nrow, padding=0, square_image=True)
 
 
 def _get_embedding_dir(tag, global_step=None):
