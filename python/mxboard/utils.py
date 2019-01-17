@@ -71,7 +71,7 @@ def _make_numpy_array(x):
 
 
 def make_image_grid(tensor, nrow=8, padding=2, normalize=False, norm_range=None,
-                    scale_each=False, pad_value=0):
+                    scale_each=False, pad_value=0, square_image=False):
     """Make a grid of images. This is an MXNet version of torchvision.utils.make_grid
     Ref: https://github.com/pytorch/vision/blob/master/torchvision/utils.py
 
@@ -81,7 +81,7 @@ def make_image_grid(tensor, nrow=8, padding=2, normalize=False, norm_range=None,
             Input image(s) in the format of HW, CHW, or NCHW.
         nrow : int
             Number of images displayed in each row of the grid. The Final grid size is
-            (batch_size / `nrow`, `nrow`).
+            (batch_size / `nrow`, `nrow`) when square_image is False; otherwise, (`nrow`, `nrow`).
         padding : int
             Padding value for each image in the grid.
         normalize : bool
@@ -95,6 +95,9 @@ def make_image_grid(tensor, nrow=8, padding=2, normalize=False, norm_range=None,
             `(min, max)` over all images.
         pad_value : float
             Value for the padded pixels.
+        square_image : bool
+            If True, force the generated image grid to be strictly square (the last
+            row of the image grid may be entire blank as a result).
 
     Returns
     -------
@@ -153,7 +156,7 @@ def make_image_grid(tensor, nrow=8, padding=2, normalize=False, norm_range=None,
     # make the batch of images into a grid
     nmaps = tensor.shape[0]
     xmaps = min(nrow, nmaps)
-    ymaps = int(np.ceil(float(nmaps) / xmaps))
+    ymaps = xmaps if square_image else int(np.ceil(float(nmaps) / xmaps))
     height, width = int(tensor.shape[2] + padding), int(tensor.shape[3] + padding)
     grid = nd.empty(shape=(3, height * ymaps + padding, width * xmaps + padding),
                     dtype=tensor.dtype, ctx=tensor.context)
@@ -172,7 +175,7 @@ def make_image_grid(tensor, nrow=8, padding=2, normalize=False, norm_range=None,
     return grid
 
 
-def _save_image(image, filename, nrow=8, padding=2):
+def _save_image(image, filename, nrow=8, padding=2, square_image=True):
     """Saves a given Tensor into an image file. If the input tensor contains multiple images,
     a grid of images will be saved.
 
@@ -184,20 +187,22 @@ def _save_image(image, filename, nrow=8, padding=2):
             Filename of the saved image(s).
         nrow : int
             Number of images displayed in each row of the grid. The Final grid size is
-            (batch_size / `nrow`, `nrow`).
+            (batch_size / `nrow`, `nrow`) when square_image is False; otherwise, (`nrow`, `nrow`).
         padding : int
             Padding value for each image in the grid.
+        square_image : bool
+            If True, force the image grid to be strictly square.
     """
     if not isinstance(image, NDArray):
         raise TypeError('MXNet NDArray expected, received {}'.format(str(type(image))))
-    image = _prepare_image(image, nrow=nrow, padding=padding)
+    image = _prepare_image(image, nrow=nrow, padding=padding, square_image=square_image)
     if Image is None:
         raise ImportError('saving image failed because PIL is not found')
     im = Image.fromarray(image.asnumpy())
     im.save(filename)
 
 
-def _prepare_image(img, nrow=8, padding=2):
+def _prepare_image(img, nrow=8, padding=2, square_image=False):
     """Given an image of format HW, CHW, or NCHW, returns a image of format HWC.
     If the input is a batch of images, a grid of images is made by stitching them together.
     If data type is float, values must be in the range [0, 1], and then they are rescaled to
@@ -211,7 +216,8 @@ def _prepare_image(img, nrow=8, padding=2):
     assert img.ndim == 2 or img.ndim == 3 or img.ndim == 4
 
     if img.dtype == np.uint8:
-        return make_image_grid(img, nrow=nrow, padding=padding).transpose((1, 2, 0))
+        return make_image_grid(
+            img, nrow=nrow, padding=padding, square_image=square_image).transpose((1, 2, 0))
     elif img.dtype == np.float32 or img.dtype == np.float64:
         min_val = img.min().asscalar()
         max_val = img.max().asscalar()
@@ -221,7 +227,7 @@ def _prepare_image(img, nrow=8, padding=2):
         if max_val > 1.0:
             raise ValueError('expected max value from img not greater than 1, '
                              'while received {}'.format(max_val))
-        img = make_image_grid(img, nrow=nrow, padding=padding) * 255.0
+        img = make_image_grid(img, nrow=nrow, padding=padding, square_image=square_image) * 255.0
         return img.astype(np.uint8).transpose((1, 2, 0))
     else:
         raise ValueError('expected input image dtype is one of uint8, float32, '
@@ -267,7 +273,8 @@ def _make_sprite_image(images, save_path):
     assert isinstance(images, NDArray)
     shape = images.shape
     nrow = int(np.ceil(np.sqrt(shape[0])))
-    _save_image(images, os.path.join(save_path, 'sprite.png'), nrow=nrow, padding=0)
+    _save_image(
+        images, os.path.join(save_path, 'sprite.png'), nrow=nrow, padding=0, square_image=True)
 
 
 def _get_embedding_dir(tag, global_step=None):
