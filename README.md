@@ -64,7 +64,7 @@ To visualize those data in browsers, users still have to install
 separately.
 
 ```bash
-pip install tensorflow tensorboard
+pip install tensorboard
 ```
 
 Use the following to verify that the TensorBoard binary has been installed correctly.
