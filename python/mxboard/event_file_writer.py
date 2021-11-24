@@ -130,8 +130,15 @@ class EventFileWriter(object):
         the event file:
         """
         self._logdir = logdir
-        if not os.path.exists(self._logdir):
-            os.makedirs(self._logdir)
+        parse_result = six.moves.urllib.parse.urlparse(self._logdir)
+        if parse_result.scheme == '':
+            if not os.path.exists(self._logdir):
+                os.makedirs(self._logdir)
+        elif parse_result.scheme in ('hdfs', 'viewfs'):
+            import pyarrow.fs
+            hdfs = pyarrow.fs.HadoopFileSystem(host='default', port=0)
+            hdfs.create_dir(parse_result.path)
+
         self._event_queue = six.moves.queue.Queue(max_queue)
         self._ev_writer = EventsWriter(os.path.join(self._logdir, "events"), verbose=verbose)
         self._flush_secs = flush_secs

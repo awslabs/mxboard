@@ -50,7 +50,7 @@ if compile_summary_protobuf() != 0:
 
 setup(
     name='mxboard',
-    version='0.1.0',
+    version='0.1.1',
     description='A logging tool for visualizing MXNet data in TensorBoard',
     long_description='MXBoard is a logging tool that enables visualization of MXNet data in TensorBoard.',
     author='Amazon Web Services',
