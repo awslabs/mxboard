@@ -18,6 +18,7 @@
 """Writer for writing events to the event file."""
 
 from __future__ import absolute_import
+import six
 import struct
 from ._crc32c import crc32c
 
@@ -37,7 +38,14 @@ class RecordWriter(object):
     def __init__(self, path):
         self._writer = None
         try:
-            self._writer = open(path, 'wb')
+            parse_result = six.moves.urllib.parse.urlparse(path)
+            if parse_result.scheme == '':
+                self._writer = open(path, 'wb')
+            elif parse_result.scheme in ('hdfs', 'viewfs'):
+                import pyarrow.fs
+                # Use fs.defaultFS from core-site.xml
+                hdfs = pyarrow.fs.HadoopFileSystem(host='default', port=0)
+                self._writer = hdfs.open_output_stream(parse_result.path)
         except (OSError, IOError) as err:
             raise ValueError('failed to open file {}: {}'.format(path, str(err)))
 
